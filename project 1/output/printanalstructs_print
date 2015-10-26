@@ -1,0 +1,1283 @@
+%!PS-Adobe-3.0
+%%BoundingBox: 18 36 594 756
+%%Title: Enscript Output
+%%Creator: GNU Enscript 1.6.5.90
+%%CreationDate: Fri Jan  2 12:39:11 2015
+%%Orientation: Landscape
+%%Pages: (atend)
+%%DocumentMedia: Letter 612 792 0 () ()
+%%DocumentNeededResources: (atend)
+%%EndComments
+%%BeginProlog
+%%BeginResource: procset Enscript-Prolog 1.6.5 90
+%
+% Procedures.
+%
+
+/_S {	% save current state
+  /_s save def
+} def
+/_R {	% restore from saved state
+  _s restore
+} def
+
+/S {	% showpage protecting gstate
+  gsave
+  showpage
+  grestore
+} bind def
+
+/MF {	% fontname newfontname -> -	make a new encoded font
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  % insert only valid encoding vectors
+  encoding_vector length 256 eq {
+    newfont /Encoding encoding_vector put
+  } if
+
+  newfontname newfont definefont pop
+} def
+
+/MF_PS { % fontname newfontname -> -	make a new font preserving its enc
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  newfontname newfont definefont pop
+} def
+
+/SF { % fontname width height -> -	set a new font
+  /height exch def
+  /width exch def
+
+  findfont
+  [width 0 0 height 0 0] makefont setfont
+} def
+
+/SUF { % fontname width height -> -	set a new user font
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF
+  /F-gs-user-font width height SF
+} def
+
+/SUF_PS { % fontname width height -> -	set a new user font preserving its enc
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF_PS
+  /F-gs-user-font width height SF
+} def
+
+/M {moveto} bind def
+/s {show} bind def
+
+/Box {	% x y w h -> -			define box path
+  /d_h exch def /d_w exch def /d_y exch def /d_x exch def
+  d_x d_y  moveto
+  d_w 0 rlineto
+  0 d_h rlineto
+  d_w neg 0 rlineto
+  closepath
+} def
+
+/bgs {	% x y height blskip gray str -> -	show string with bg color
+  /str exch def
+  /gray exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    gray setgray
+    fill
+  grestore
+  x y M str s
+} def
+
+/bgcs { % x y height blskip red green blue str -> -  show string with bg color
+  /str exch def
+  /blue exch def
+  /green exch def
+  /red exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    red green blue setrgbcolor
+    fill
+  grestore
+  x y M str s
+} def
+
+% Highlight bars.
+/highlight_bars {	% nlines lineheight output_y_margin gray -> -
+  gsave
+    setgray
+    /ymarg exch def
+    /lineheight exch def
+    /nlines exch def
+
+    % This 2 is just a magic number to sync highlight lines to text.
+    0 d_header_y ymarg sub 2 sub translate
+
+    /cw d_output_w cols div def
+    /nrows d_output_h ymarg 2 mul sub lineheight div cvi def
+
+    % for each column
+    0 1 cols 1 sub {
+      cw mul /xp exch def
+
+      % for each rows
+      0 1 nrows 1 sub {
+        /rn exch def
+        rn lineheight mul neg /yp exch def
+        rn nlines idiv 2 mod 0 eq {
+	  % Draw highlight bar.  4 is just a magic indentation.
+	  xp 4 add yp cw 8 sub lineheight neg Box fill
+	} if
+      } for
+    } for
+
+  grestore
+} def
+
+% Line highlight bar.
+/line_highlight {	% x y width height gray -> -
+  gsave
+    /gray exch def
+    Box gray setgray fill
+  grestore
+} def
+
+% Column separator lines.
+/column_lines {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h translate
+    /cw d_output_w cols div def
+    1 1 cols 1 sub {
+      cw mul 0 moveto
+      0 d_output_h rlineto stroke
+    } for
+  grestore
+} def
+
+% Column borders.
+/column_borders {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h moveto
+    0 d_output_h rlineto
+    d_output_w 0 rlineto
+    0 d_output_h neg rlineto
+    closepath stroke
+  grestore
+} def
+
+% Do the actual underlay drawing
+/draw_underlay {
+  ul_style 0 eq {
+    ul_str true charpath stroke
+  } {
+    ul_str show
+  } ifelse
+} def
+
+% Underlay
+/underlay {	% - -> -
+  gsave
+    0 d_page_h translate
+    d_page_h neg d_page_w atan rotate
+
+    ul_gray setgray
+    ul_font setfont
+    /dw d_page_h dup mul d_page_w dup mul add sqrt def
+    ul_str stringwidth pop dw exch sub 2 div ul_h_ptsize -2 div moveto
+    draw_underlay
+  grestore
+} def
+
+/user_underlay {	% - -> -
+  gsave
+    ul_x ul_y translate
+    ul_angle rotate
+    ul_gray setgray
+    ul_font setfont
+    0 0 ul_h_ptsize 2 div sub moveto
+    draw_underlay
+  grestore
+} def
+
+% Page prefeed
+/page_prefeed {		% bool -> -
+  statusdict /prefeed known {
+    statusdict exch /prefeed exch put
+  } {
+    pop
+  } ifelse
+} def
+
+% Wrapped line markers
+/wrapped_line_mark {	% x y charwith charheight type -> -
+  /type exch def
+  /h exch def
+  /w exch def
+  /y exch def
+  /x exch def
+
+  type 2 eq {
+    % Black boxes (like TeX does)
+    gsave
+      0 setlinewidth
+      x w 4 div add y M
+      0 h rlineto w 2 div 0 rlineto 0 h neg rlineto
+      closepath fill
+    grestore
+  } {
+    type 3 eq {
+      % Small arrows
+      gsave
+        .2 setlinewidth
+        x w 2 div add y h 2 div add M
+        w 4 div 0 rlineto
+        x w 4 div add y lineto stroke
+
+        x w 4 div add w 8 div add y h 4 div add M
+        x w 4 div add y lineto
+	w 4 div h 8 div rlineto stroke
+      grestore
+    } {
+      % do nothing
+    } ifelse
+  } ifelse
+} def
+
+% EPSF import.
+
+/BeginEPSF {
+  /b4_Inc_state save def    		% Save state for cleanup
+  /dict_count countdictstack def	% Count objects on dict stack
+  /op_count count 1 sub def		% Count objects on operand stack
+  userdict begin
+  /showpage { } def
+  0 setgray 0 setlinecap
+  1 setlinewidth 0 setlinejoin
+  10 setmiterlimit [ ] 0 setdash newpath
+  /languagelevel where {
+    pop languagelevel
+    1 ne {
+      false setstrokeadjust false setoverprint
+    } if
+  } if
+} bind def
+
+/EndEPSF {
+  count op_count sub { pos } repeat	% Clean up stacks
+  countdictstack dict_count sub { end } repeat
+  b4_Inc_state restore
+} bind def
+
+% Check PostScript language level.
+/languagelevel where {
+  pop /gs_languagelevel languagelevel def
+} {
+  /gs_languagelevel 1 def
+} ifelse
+%%EndResource
+%%BeginResource: procset Enscript-Encoding-88591 1.6.5 90
+/encoding_vector [
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclam       	/quotedbl     	/numbersign   	
+/dollar       	/percent      	/ampersand    	/quoteright   	
+/parenleft    	/parenright   	/asterisk     	/plus         	
+/comma        	/hyphen       	/period       	/slash        	
+/zero         	/one          	/two          	/three        	
+/four         	/five         	/six          	/seven        	
+/eight        	/nine         	/colon        	/semicolon    	
+/less         	/equal        	/greater      	/question     	
+/at           	/A            	/B            	/C            	
+/D            	/E            	/F            	/G            	
+/H            	/I            	/J            	/K            	
+/L            	/M            	/N            	/O            	
+/P            	/Q            	/R            	/S            	
+/T            	/U            	/V            	/W            	
+/X            	/Y            	/Z            	/bracketleft  	
+/backslash    	/bracketright 	/asciicircum  	/underscore   	
+/quoteleft    	/a            	/b            	/c            	
+/d            	/e            	/f            	/g            	
+/h            	/i            	/j            	/k            	
+/l            	/m            	/n            	/o            	
+/p            	/q            	/r            	/s            	
+/t            	/u            	/v            	/w            	
+/x            	/y            	/z            	/braceleft    	
+/bar          	/braceright   	/tilde        	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclamdown   	/cent         	/sterling     	
+/currency     	/yen          	/brokenbar    	/section      	
+/dieresis     	/copyright    	/ordfeminine  	/guillemotleft	
+/logicalnot   	/hyphen       	/registered   	/macron       	
+/degree       	/plusminus    	/twosuperior  	/threesuperior	
+/acute        	/mu           	/paragraph    	/bullet       	
+/cedilla      	/onesuperior  	/ordmasculine 	/guillemotright	
+/onequarter   	/onehalf      	/threequarters	/questiondown 	
+/Agrave       	/Aacute       	/Acircumflex  	/Atilde       	
+/Adieresis    	/Aring        	/AE           	/Ccedilla     	
+/Egrave       	/Eacute       	/Ecircumflex  	/Edieresis    	
+/Igrave       	/Iacute       	/Icircumflex  	/Idieresis    	
+/Eth          	/Ntilde       	/Ograve       	/Oacute       	
+/Ocircumflex  	/Otilde       	/Odieresis    	/multiply     	
+/Oslash       	/Ugrave       	/Uacute       	/Ucircumflex  	
+/Udieresis    	/Yacute       	/Thorn        	/germandbls   	
+/agrave       	/aacute       	/acircumflex  	/atilde       	
+/adieresis    	/aring        	/ae           	/ccedilla     	
+/egrave       	/eacute       	/ecircumflex  	/edieresis    	
+/igrave       	/iacute       	/icircumflex  	/idieresis    	
+/eth          	/ntilde       	/ograve       	/oacute       	
+/ocircumflex  	/otilde       	/odieresis    	/divide       	
+/oslash       	/ugrave       	/uacute       	/ucircumflex  	
+/udieresis    	/yacute       	/thorn        	/ydieresis    	
+] def
+%%EndResource
+%%EndProlog
+%%BeginSetup
+%%IncludeResource: font Courier-Bold
+%%IncludeResource: font Courier
+/HFpt_w 10 def
+/HFpt_h 10 def
+/Courier-Bold /HF-gs-font MF
+/HF /HF-gs-font findfont [HFpt_w 0 0 HFpt_h 0 0] makefont def
+/Courier /F-gs-font MF
+/F-gs-font 8 8 SF
+/#copies 1 def
+% Pagedevice definitions:
+gs_languagelevel 1 gt {
+  <<
+    /PageSize [612 792] 
+  >> setpagedevice
+} if
+%%BeginResource: procset Enscript-Header-enscript 1.6.5 90
+%%IncludeResource: font Times-Bold
+%%IncludeResource: font Times-Roman
+
+% Fonts.
+/Times-Bold /HeaderFont-Bold MF
+/HeaderDateF /HeaderFont-Bold findfont 12 scalefont def
+
+/Times-Roman /HeaderFont-Times MF
+/HeaderHDRF /HeaderFont-Times findfont 14 scalefont def
+
+/HeaderPageNumF /Helvetica-Bold findfont 28.8 scalefont def
+
+/do_header {	% print enscript header
+  gsave
+    d_header_x d_header_y translate
+
+    % light bar
+    0 0 d_header_w d_header_h 2 div Box
+    .95 setgray fill
+
+    % dark gray boxes
+    /dbw d_header_h 2 mul def	% dark box width
+    /dbc .7 def			% dark box color
+
+    % left dark box.
+    0 0 dbw d_header_h Box
+    dbc setgray fill
+
+    0 setgray 
+    HeaderDateF setfont
+    moddatestr dup stringwidth pop dbw exch sub 2 div 
+    d_header_h 2 div 2 add moveto show
+    modtimestr dup stringwidth pop dbw exch sub 2 div 
+    d_header_h 5 div moveto show
+
+    % right dark box
+    d_header_w dbw sub 0 dbw d_header_h Box
+    dbc setgray fill
+
+    HeaderPageNumF setfont
+    1 setgray
+    pagenumstr dup
+    stringwidth pop dbw exch sub 2 div d_header_w dbw sub add
+    d_header_h .2 mul moveto show
+
+    % filename
+    0 setgray 
+    HeaderHDRF setfont
+    d_header_w fname stringwidth pop sub 2 div d_header_h 8 div moveto
+    fname show
+
+    % user supplied header string.
+    user_header_p {
+      /h d_header_h 8 div 5 mul def
+
+      % Implement strict enscript compatibility.
+      user_header_center_str () eq user_header_right_str () eq and {
+        d_header_w user_header_left_str stringwidth pop sub 2 div 
+        h moveto user_header_left_str show
+      } {
+        dbw 5 add h moveto user_header_left_str show
+
+        d_header_w user_header_center_str stringwidth pop sub 2 div 
+        h moveto user_header_center_str show
+
+	d_header_w dbw sub 5 sub user_header_right_str stringwidth pop
+	sub h moveto user_header_right_str show
+      } ifelse
+    } if
+
+  grestore
+} def
+%%EndResource
+/d_page_w 720 def
+/d_page_h 576 def
+/d_header_x 0 def
+/d_header_y 540 def
+/d_header_w 720 def
+/d_header_h 36 def
+/d_footer_x 0 def
+/d_footer_y 0 def
+/d_footer_w 720 def
+/d_footer_h 0 def
+/d_output_w 720 def
+/d_output_h 540 def
+/cols 1 def
+%%EndSetup
+%%Page: (1) 1
+%%BeginPageSetup
+_S
+90 rotate
+36 -594 translate
+/pagenum 1 def
+/fname (printanalstructs) def
+/fdir (.) def
+/ftail (printanalstructs) def
+% User defined strings:
+/pagenumstr (1) def
+/moddatestr (09/09/14) def
+/modtimestr (14:22:57) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+25.2 529 M (1:) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 529 M
+(#!/usr/bin/perl -w) s
+/F-gs-font 8 8 SF
+25.2 520 M (2:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+25.2 511 M (3:) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 511 M
+(use) s
+/F-gs-font 8 8 SF
+0 setgray
+54 511 M
+( strict;) s
+25.2 502 M (4:) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 502 M
+(use) s
+/F-gs-font 8 8 SF
+0 setgray
+54 502 M
+( List::Util ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+111.6 502 M
+(qw) s
+/F-gs-font 8 8 SF
+0 setgray
+121.2 502 M
+(\(first max maxstr min minstr reduce shuffle sum\);) s
+25.2 493 M (5:) s
+25.2 484 M (6:) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 484 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+49.2 484 M
+( $str = ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+87.6 484 M
+('\(\(.\(\(.\(....\).\)\)\).....\)') s
+/F-gs-font 8 8 SF
+0 setgray
+202.8 484 M
+(; ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+212.4 484 M
+(# desired output: max.len. of stems = 3 and max. len. of bulb = 4. There is 1 bulb ....4 nts. there are ) s
+5 475 M
+(two stems: \(.\) and \(\(.\(\).\)\) of len. 2 and 3) s
+/F-gs-font 8 8 SF
+25.2 466 M (7:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+25.2 457 M (8:) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 457 M
+(#print substr $str, -1;) s
+/F-gs-font 8 8 SF
+25.2 448 M (9:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 448 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+49.2 448 M
+( @str = ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+87.6 448 M
+(split) s
+/F-gs-font 8 8 SF
+0 setgray
+111.6 448 M
+(\(//, $str\);) s
+20.4 439 M (10:) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 439 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+49.2 439 M
+( @stack = \(\);) s
+20.4 430 M (11:) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 430 M
+(# my @bulblengs = \(\); ) s
+/F-gs-font 8 8 SF
+20.4 421 M (12:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 421 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+49.2 421 M
+( $dotcount = 0;) s
+20.4 412 M (13:) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 412 M
+(# my @lenstems = \(\); my $lenstem = 0;) s
+/F-gs-font 8 8 SF
+20.4 403 M (14:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 403 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+49.2 403 M
+( @stemstr = \(\);) s
+20.4 394 M (15:) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 394 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+49.2 394 M
+( @dots = \(\);) s
+20.4 385 M (16:) s
+20.4 376 M (17:) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 376 M
+(open) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 376 M
+(\() s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+63.6 376 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+73.2 376 M
+( $FO, ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+102 376 M
+(">printsecstrs") s
+/F-gs-font 8 8 SF
+0 setgray
+174 376 M
+(\) ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+183.6 376 M
+(or) s
+/F-gs-font 8 8 SF
+0 setgray
+193.2 376 M
+( ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+198 376 M
+(die) s
+/F-gs-font 8 8 SF
+0 setgray
+212.4 376 M
+( ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+217.2 376 M
+("") s
+/F-gs-font 8 8 SF
+0 setgray
+226.8 376 M
+(;) s
+20.4 367 M (18:) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 367 M
+(print) s
+/F-gs-font 8 8 SF
+0 setgray
+63.6 367 M
+( $FO ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+87.6 367 M
+("@str\\n") s
+/F-gs-font 8 8 SF
+0 setgray
+126 367 M
+(;) s
+20.4 358 M (19:) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 358 M
+(# Read the characters of the seq. from the Left to Right) s
+/F-gs-font 8 8 SF
+20.4 349 M (20:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 349 M
+(foreach) s
+/F-gs-font 8 8 SF
+0 setgray
+73.2 349 M
+( \(@str\) {) s
+20.4 340 M (21:) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 340 M
+(#print;) s
+/F-gs-font 8 8 SF
+20.4 331 M (22:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 331 M
+(        ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+78 331 M
+(if) s
+/F-gs-font 8 8 SF
+0 setgray
+87.6 331 M
+( \(\($_ ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+116.4 331 M
+(eq) s
+/F-gs-font 8 8 SF
+0 setgray
+126 331 M
+( ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+130.8 331 M
+('\(') s
+/F-gs-font 8 8 SF
+0 setgray
+145.2 331 M
+(\) ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+154.8 331 M
+(or) s
+/F-gs-font 8 8 SF
+0 setgray
+164.4 331 M
+( \($_ ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+188.4 331 M
+(eq) s
+/F-gs-font 8 8 SF
+0 setgray
+198 331 M
+( ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+202.8 331 M
+('.') s
+/F-gs-font 8 8 SF
+0 setgray
+217.2 331 M
+(\)\) {) s
+20.4 322 M (23:) s
+39.6 322 M
+(                ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+116.4 322 M
+(push) s
+/F-gs-font 8 8 SF
+0 setgray
+135.6 322 M
+( @stack, $_;) s
+20.4 313 M (24:) s
+39.6 313 M
+(                ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+116.4 313 M
+(#print "pushed: $_\\n";) s
+/F-gs-font 8 8 SF
+20.4 304 M (25:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 304 M
+(        }) s
+20.4 295 M (26:) s
+39.6 295 M
+(        ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+78 295 M
+(else) s
+/F-gs-font 8 8 SF
+0 setgray
+97.2 295 M
+( { ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+111.6 295 M
+(# a '\)' is seen) s
+/F-gs-font 8 8 SF
+20.4 286 M (27:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 286 M
+(                ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+116.4 286 M
+(do) s
+/F-gs-font 8 8 SF
+0 setgray
+126 286 M
+( {) s
+20.4 277 M (28:) s
+39.6 277 M
+(                        $_ = ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+178.8 277 M
+(pop) s
+/F-gs-font 8 8 SF
+0 setgray
+193.2 277 M
+( @stack;) s
+20.4 268 M (29:) s
+39.6 268 M
+(                        ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+154.8 268 M
+(#print "popped: $_\\n";) s
+/F-gs-font 8 8 SF
+20.4 259 M (30:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 259 M
+(                        ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+154.8 259 M
+(if) s
+/F-gs-font 8 8 SF
+0 setgray
+164.4 259 M
+( \($_ ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+188.4 259 M
+(eq) s
+/F-gs-font 8 8 SF
+0 setgray
+198 259 M
+( ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+202.8 259 M
+('.') s
+/F-gs-font 8 8 SF
+0 setgray
+217.2 259 M
+(\) {) s
+20.4 250 M (31:) s
+39.6 250 M
+(                                $dotcount ++;) s
+20.4 241 M (32:) s
+39.6 241 M
+(                                ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+193.2 241 M
+(push) s
+/F-gs-font 8 8 SF
+0 setgray
+212.4 241 M
+( @dots, $_;) s
+20.4 232 M (33:) s
+39.6 232 M
+(                        }) s
+20.4 223 M (34:) s
+39.6 223 M
+(                } ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+126 223 M
+(until) s
+/F-gs-font 8 8 SF
+0 setgray
+150 223 M
+( $_ ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+169.2 223 M
+(eq) s
+/F-gs-font 8 8 SF
+0 setgray
+178.8 223 M
+( ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+183.6 223 M
+('\(') s
+/F-gs-font 8 8 SF
+0 setgray
+198 223 M
+(;) s
+20.4 214 M (35:) s
+39.6 214 M
+(                ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+116.4 214 M
+(# $lenstem ++;) s
+/F-gs-font 8 8 SF
+20.4 205 M (36:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 205 M
+(                ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+116.4 205 M
+(# push @stemstr, $_; # first push the lp '\(' into the stem structure) s
+/F-gs-font 8 8 SF
+20.4 196 M (37:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 196 M
+(                ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+116.4 196 M
+(if) s
+/F-gs-font 8 8 SF
+0 setgray
+126 196 M
+( \($dotcount <= 2\) {) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+217.2 196 M
+(# do not consider the 'popped dots' as a bulb: allow 1 mismatch in stem /or an insert upto a length of ) s
+5 187 M
+(2 ) s
+/F-gs-font 8 8 SF
+20.4 178 M (38:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 178 M
+(                        ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+154.8 178 M
+(push) s
+/F-gs-font 8 8 SF
+0 setgray
+174 178 M
+( @stemstr, @dots; ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+260.4 178 M
+(# after pushing '\(' push the dots; completes 1 iteration) s
+/F-gs-font 8 8 SF
+20.4 169 M (39:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 169 M
+(                        ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+154.8 169 M
+(push) s
+/F-gs-font 8 8 SF
+0 setgray
+174 169 M
+( @stemstr, $_; ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+246 169 M
+(# first push the lp '\(' into the stem structure) s
+/F-gs-font 8 8 SF
+20.4 160 M (40:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 160 M
+(                        @dots = \(\); ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+212.4 160 M
+(# empty dots) s
+/F-gs-font 8 8 SF
+20.4 151 M (41:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 151 M
+(                        $dotcount = 0;) s
+20.4 142 M (42:) s
+39.6 142 M
+(                ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+116.4 142 M
+(# continue with the next iteration until a bulb is seen or the stack is empty) s
+/F-gs-font 8 8 SF
+20.4 133 M (43:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 133 M
+(                }) s
+20.4 124 M (44:) s
+39.6 124 M
+(                ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+116.4 124 M
+(else) s
+/F-gs-font 8 8 SF
+0 setgray
+135.6 124 M
+( { ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+150 124 M
+(# if it is a bulb) s
+/F-gs-font 8 8 SF
+20.4 115 M (45:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 115 M
+(                        ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+154.8 115 M
+(print) s
+/F-gs-font 8 8 SF
+0 setgray
+178.8 115 M
+( $FO ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+202.8 115 M
+("stem:@stemstr\\t") s
+/F-gs-font 8 8 SF
+0 setgray
+284.4 115 M
+(; ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+294 115 M
+(# first print the current stem even if it is empty) s
+/F-gs-font 8 8 SF
+20.4 106 M (46:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 106 M
+(                        ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+154.8 106 M
+(print) s
+/F-gs-font 8 8 SF
+0 setgray
+178.8 106 M
+( $FO ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+202.8 106 M
+("bulb:@dots\\t") s
+/F-gs-font 8 8 SF
+0 setgray
+270 106 M
+(;) s
+20.4 97 M (47:) s
+39.6 97 M
+(                        @stemstr = $_; @dots = \(\); ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+284.4 97 M
+(# start a new stem and emtpy bulb) s
+/F-gs-font 8 8 SF
+20.4 88 M (48:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 88 M
+(                        ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+154.8 88 M
+(#push @bulblengs, $dotcount; # count as a bulb) s
+/F-gs-font 8 8 SF
+20.4 79 M (49:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 79 M
+(                        ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+154.8 79 M
+(#$lenstem += $dotcount;) s
+/F-gs-font 8 8 SF
+20.4 70 M (50:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 70 M
+(                        ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+154.8 70 M
+(#push @lenstems, $lenstem;) s
+/F-gs-font 8 8 SF
+20.4 61 M (51:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 61 M
+(                        $dotcount = 0; ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+226.8 61 M
+(# reset count) s
+/F-gs-font 8 8 SF
+20.4 52 M (52:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 52 M
+(                        ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+154.8 52 M
+(#$lenstem = 0;) s
+/F-gs-font 8 8 SF
+20.4 43 M (53:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 43 M
+(                }) s
+20.4 34 M (54:) s
+39.6 34 M
+(        }) s
+20.4 25 M (55:) s
+39.6 25 M
+(}) s
+20.4 16 M (56:) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 16 M
+(print) s
+/F-gs-font 8 8 SF
+0 setgray
+63.6 16 M
+( $FO ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+87.6 16 M
+("stem:@stemstr\\n") s
+/F-gs-font 8 8 SF
+0 setgray
+169.2 16 M
+(; ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+178.8 16 M
+(# when no further bulb seen or when end of string is reached; equally an empty stack seen ) s
+/F-gs-font 8 8 SF
+20.4 7 M (57:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 7 M
+(#print "Max. len. of bulb is ", max\(@bulblengs\), "\\n";) s
+_R
+S
+%%Page: (2) 2
+%%BeginPageSetup
+_S
+90 rotate
+36 -594 translate
+/pagenum 2 def
+/fname (printanalstructs) def
+/fdir (.) def
+/ftail (printanalstructs) def
+/Courier-Oblique 8 8 SUF
+% User defined strings:
+/pagenumstr (2) def
+/moddatestr (09/09/14) def
+/modtimestr (14:22:57) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+0.698039 0.133333 0.133333 setrgbcolor
+/F-gs-font 8 8 SF
+20.4 529 M (58:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 529 M
+(#print "Max. len. of stem is ", max\(@lenstems\), "\\n";) s
+/F-gs-font 8 8 SF
+20.4 520 M (59:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+20.4 511 M (60:) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 511 M
+(close) s
+/F-gs-font 8 8 SF
+0 setgray
+63.6 511 M
+( $FO;) s
+_R
+S
+%%Trailer
+%%Pages: 2
+%%DocumentNeededResources: font Times-Roman Courier-Oblique Courier-Bold 
+%%+ font Courier Times-Bold 
+%%EOF

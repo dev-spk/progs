@@ -1,0 +1,3 @@
+tar3_miR3_48_11_58_AUGC_6_1_6_22_25	AAAAAAAAAAAAAAAAAAAAAUUACGUACGCAAAAAAAAAAAAAAAAA&AAAAAAAUCGCGUAU	..........................(((((.................&.........))))).	 -6.60
+tar3_miR3_48_15_62_AUGC_6_1_6_22_25	AAAAAAAAAAAAAAAAAUUACGUACGCAAAAAAAAAAAAAAAAAAAUU&AAAAAAAUCGCGUAU	......................(((((.....................&.........))))).	 -6.60
+tar3_miR3_48_16_63_UGCG_6_1_6_22_25	AAAAAAAAAAAAAAAAUUACGUACGCAAAAAAAAAAAAAAAAAAAUUU&AAAAAAAUCGCGUAU	.....................(((((......................&.........))))).	 -6.60

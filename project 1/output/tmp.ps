@@ -1,0 +1,3958 @@
+%!PS-Adobe-3.0
+%%BoundingBox: 18 36 594 756
+%%Title: Enscript Output
+%%Creator: GNU Enscript 1.6.5.90
+%%CreationDate: Fri Jun 26 10:58:54 2015
+%%Orientation: Portrait
+%%Pages: (atend)
+%%DocumentMedia: Letter 612 792 0 () ()
+%%DocumentNeededResources: (atend)
+%%LanguageLevel: 2
+%%EndComments
+%%BeginProlog
+%%BeginResource: procset Enscript-Prolog 1.6.5 90
+%
+% Procedures.
+%
+
+/_S {	% save current state
+  /_s save def
+} def
+/_R {	% restore from saved state
+  _s restore
+} def
+
+/S {	% showpage protecting gstate
+  gsave
+  showpage
+  grestore
+} bind def
+
+/MF {	% fontname newfontname -> -	make a new encoded font
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  % insert only valid encoding vectors
+  encoding_vector length 256 eq {
+    newfont /Encoding encoding_vector put
+  } if
+
+  newfontname newfont definefont pop
+} def
+
+/MF_PS { % fontname newfontname -> -	make a new font preserving its enc
+  /newfontname exch def
+  /fontname exch def
+
+  /fontdict fontname findfont def
+  /newfont fontdict maxlength dict def
+
+  fontdict {
+    exch
+    dup /FID eq {
+      % skip FID pair
+      pop pop
+    } {
+      % copy to the new font dictionary
+      exch newfont 3 1 roll put
+    } ifelse
+  } forall
+
+  newfont /FontName newfontname put
+
+  newfontname newfont definefont pop
+} def
+
+/SF { % fontname width height -> -	set a new font
+  /height exch def
+  /width exch def
+
+  findfont
+  [width 0 0 height 0 0] makefont setfont
+} def
+
+/SUF { % fontname width height -> -	set a new user font
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF
+  /F-gs-user-font width height SF
+} def
+
+/SUF_PS { % fontname width height -> -	set a new user font preserving its enc
+  /height exch def
+  /width exch def
+
+  /F-gs-user-font MF_PS
+  /F-gs-user-font width height SF
+} def
+
+/M {moveto} bind def
+/s {show} bind def
+
+/Box {	% x y w h -> -			define box path
+  /d_h exch def /d_w exch def /d_y exch def /d_x exch def
+  d_x d_y  moveto
+  d_w 0 rlineto
+  0 d_h rlineto
+  d_w neg 0 rlineto
+  closepath
+} def
+
+/bgs {	% x y height blskip gray str -> -	show string with bg color
+  /str exch def
+  /gray exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    gray setgray
+    fill
+  grestore
+  x y M str s
+} def
+
+/bgcs { % x y height blskip red green blue str -> -  show string with bg color
+  /str exch def
+  /blue exch def
+  /green exch def
+  /red exch def
+  /blskip exch def
+  /height exch def
+  /y exch def
+  /x exch def
+
+  gsave
+    x y blskip sub str stringwidth pop height Box
+    red green blue setrgbcolor
+    fill
+  grestore
+  x y M str s
+} def
+
+% Highlight bars.
+/highlight_bars {	% nlines lineheight output_y_margin gray -> -
+  gsave
+    setgray
+    /ymarg exch def
+    /lineheight exch def
+    /nlines exch def
+
+    % This 2 is just a magic number to sync highlight lines to text.
+    0 d_header_y ymarg sub 2 sub translate
+
+    /cw d_output_w cols div def
+    /nrows d_output_h ymarg 2 mul sub lineheight div cvi def
+
+    % for each column
+    0 1 cols 1 sub {
+      cw mul /xp exch def
+
+      % for each rows
+      0 1 nrows 1 sub {
+        /rn exch def
+        rn lineheight mul neg /yp exch def
+        rn nlines idiv 2 mod 0 eq {
+	  % Draw highlight bar.  4 is just a magic indentation.
+	  xp 4 add yp cw 8 sub lineheight neg Box fill
+	} if
+      } for
+    } for
+
+  grestore
+} def
+
+% Line highlight bar.
+/line_highlight {	% x y width height gray -> -
+  gsave
+    /gray exch def
+    Box gray setgray fill
+  grestore
+} def
+
+% Column separator lines.
+/column_lines {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h translate
+    /cw d_output_w cols div def
+    1 1 cols 1 sub {
+      cw mul 0 moveto
+      0 d_output_h rlineto stroke
+    } for
+  grestore
+} def
+
+% Column borders.
+/column_borders {
+  gsave
+    .1 setlinewidth
+    0 d_footer_h moveto
+    0 d_output_h rlineto
+    d_output_w 0 rlineto
+    0 d_output_h neg rlineto
+    closepath stroke
+  grestore
+} def
+
+% Do the actual underlay drawing
+/draw_underlay {
+  ul_style 0 eq {
+    ul_str true charpath stroke
+  } {
+    ul_str show
+  } ifelse
+} def
+
+% Underlay
+/underlay {	% - -> -
+  gsave
+    0 d_page_h translate
+    d_page_h neg d_page_w atan rotate
+
+    ul_gray setgray
+    ul_font setfont
+    /dw d_page_h dup mul d_page_w dup mul add sqrt def
+    ul_str stringwidth pop dw exch sub 2 div ul_h_ptsize -2 div moveto
+    draw_underlay
+  grestore
+} def
+
+/user_underlay {	% - -> -
+  gsave
+    ul_x ul_y translate
+    ul_angle rotate
+    ul_gray setgray
+    ul_font setfont
+    0 0 ul_h_ptsize 2 div sub moveto
+    draw_underlay
+  grestore
+} def
+
+% Page prefeed
+/page_prefeed {		% bool -> -
+  statusdict /prefeed known {
+    statusdict exch /prefeed exch put
+  } {
+    pop
+  } ifelse
+} def
+
+% Wrapped line markers
+/wrapped_line_mark {	% x y charwith charheight type -> -
+  /type exch def
+  /h exch def
+  /w exch def
+  /y exch def
+  /x exch def
+
+  type 2 eq {
+    % Black boxes (like TeX does)
+    gsave
+      0 setlinewidth
+      x w 4 div add y M
+      0 h rlineto w 2 div 0 rlineto 0 h neg rlineto
+      closepath fill
+    grestore
+  } {
+    type 3 eq {
+      % Small arrows
+      gsave
+        .2 setlinewidth
+        x w 2 div add y h 2 div add M
+        w 4 div 0 rlineto
+        x w 4 div add y lineto stroke
+
+        x w 4 div add w 8 div add y h 4 div add M
+        x w 4 div add y lineto
+	w 4 div h 8 div rlineto stroke
+      grestore
+    } {
+      % do nothing
+    } ifelse
+  } ifelse
+} def
+
+% EPSF import.
+
+/BeginEPSF {
+  /b4_Inc_state save def    		% Save state for cleanup
+  /dict_count countdictstack def	% Count objects on dict stack
+  /op_count count 1 sub def		% Count objects on operand stack
+  userdict begin
+  /showpage { } def
+  0 setgray 0 setlinecap
+  1 setlinewidth 0 setlinejoin
+  10 setmiterlimit [ ] 0 setdash newpath
+  /languagelevel where {
+    pop languagelevel
+    1 ne {
+      false setstrokeadjust false setoverprint
+    } if
+  } if
+} bind def
+
+/EndEPSF {
+  count op_count sub { pos } repeat	% Clean up stacks
+  countdictstack dict_count sub { end } repeat
+  b4_Inc_state restore
+} bind def
+
+% Check PostScript language level.
+/languagelevel where {
+  pop /gs_languagelevel languagelevel def
+} {
+  /gs_languagelevel 1 def
+} ifelse
+%%EndResource
+%%BeginResource: procset Enscript-Encoding-88591 1.6.5 90
+/encoding_vector [
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclam       	/quotedbl     	/numbersign   	
+/dollar       	/percent      	/ampersand    	/quoteright   	
+/parenleft    	/parenright   	/asterisk     	/plus         	
+/comma        	/hyphen       	/period       	/slash        	
+/zero         	/one          	/two          	/three        	
+/four         	/five         	/six          	/seven        	
+/eight        	/nine         	/colon        	/semicolon    	
+/less         	/equal        	/greater      	/question     	
+/at           	/A            	/B            	/C            	
+/D            	/E            	/F            	/G            	
+/H            	/I            	/J            	/K            	
+/L            	/M            	/N            	/O            	
+/P            	/Q            	/R            	/S            	
+/T            	/U            	/V            	/W            	
+/X            	/Y            	/Z            	/bracketleft  	
+/backslash    	/bracketright 	/asciicircum  	/underscore   	
+/quoteleft    	/a            	/b            	/c            	
+/d            	/e            	/f            	/g            	
+/h            	/i            	/j            	/k            	
+/l            	/m            	/n            	/o            	
+/p            	/q            	/r            	/s            	
+/t            	/u            	/v            	/w            	
+/x            	/y            	/z            	/braceleft    	
+/bar          	/braceright   	/tilde        	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/.notdef      	/.notdef      	/.notdef      	/.notdef      	
+/space        	/exclamdown   	/cent         	/sterling     	
+/currency     	/yen          	/brokenbar    	/section      	
+/dieresis     	/copyright    	/ordfeminine  	/guillemotleft	
+/logicalnot   	/hyphen       	/registered   	/macron       	
+/degree       	/plusminus    	/twosuperior  	/threesuperior	
+/acute        	/mu           	/paragraph    	/bullet       	
+/cedilla      	/onesuperior  	/ordmasculine 	/guillemotright	
+/onequarter   	/onehalf      	/threequarters	/questiondown 	
+/Agrave       	/Aacute       	/Acircumflex  	/Atilde       	
+/Adieresis    	/Aring        	/AE           	/Ccedilla     	
+/Egrave       	/Eacute       	/Ecircumflex  	/Edieresis    	
+/Igrave       	/Iacute       	/Icircumflex  	/Idieresis    	
+/Eth          	/Ntilde       	/Ograve       	/Oacute       	
+/Ocircumflex  	/Otilde       	/Odieresis    	/multiply     	
+/Oslash       	/Ugrave       	/Uacute       	/Ucircumflex  	
+/Udieresis    	/Yacute       	/Thorn        	/germandbls   	
+/agrave       	/aacute       	/acircumflex  	/atilde       	
+/adieresis    	/aring        	/ae           	/ccedilla     	
+/egrave       	/eacute       	/ecircumflex  	/edieresis    	
+/igrave       	/iacute       	/icircumflex  	/idieresis    	
+/eth          	/ntilde       	/ograve       	/oacute       	
+/ocircumflex  	/otilde       	/odieresis    	/divide       	
+/oslash       	/ugrave       	/uacute       	/ucircumflex  	
+/udieresis    	/yacute       	/thorn        	/ydieresis    	
+] def
+%%EndResource
+%%EndProlog
+%%BeginSetup
+%%IncludeResource: font Courier-Bold
+%%IncludeResource: font Courier
+/HFpt_w 10 def
+/HFpt_h 10 def
+/Courier-Bold /HF-gs-font MF
+/HF /HF-gs-font findfont [HFpt_w 0 0 HFpt_h 0 0] makefont def
+/Courier /F-gs-font MF
+/F-gs-font 8 8 SF
+/#copies 1 def
+% Pagedevice definitions:
+gs_languagelevel 1 gt {
+  <<
+    /Duplex true /PageSize [612 792] 
+  >> setpagedevice
+} if
+%%BeginResource: procset Enscript-Header-enscript 1.6.5 90
+%%IncludeResource: font Times-Bold
+%%IncludeResource: font Times-Roman
+
+% Fonts.
+/Times-Bold /HeaderFont-Bold MF
+/HeaderDateF /HeaderFont-Bold findfont 12 scalefont def
+
+/Times-Roman /HeaderFont-Times MF
+/HeaderHDRF /HeaderFont-Times findfont 14 scalefont def
+
+/HeaderPageNumF /Helvetica-Bold findfont 28.8 scalefont def
+
+/do_header {	% print enscript header
+  gsave
+    d_header_x d_header_y translate
+
+    % light bar
+    0 0 d_header_w d_header_h 2 div Box
+    .95 setgray fill
+
+    % dark gray boxes
+    /dbw d_header_h 2 mul def	% dark box width
+    /dbc .7 def			% dark box color
+
+    % left dark box.
+    0 0 dbw d_header_h Box
+    dbc setgray fill
+
+    0 setgray 
+    HeaderDateF setfont
+    moddatestr dup stringwidth pop dbw exch sub 2 div 
+    d_header_h 2 div 2 add moveto show
+    modtimestr dup stringwidth pop dbw exch sub 2 div 
+    d_header_h 5 div moveto show
+
+    % right dark box
+    d_header_w dbw sub 0 dbw d_header_h Box
+    dbc setgray fill
+
+    HeaderPageNumF setfont
+    1 setgray
+    pagenumstr dup
+    stringwidth pop dbw exch sub 2 div d_header_w dbw sub add
+    d_header_h .2 mul moveto show
+
+    % filename
+    0 setgray 
+    HeaderHDRF setfont
+    d_header_w fname stringwidth pop sub 2 div d_header_h 8 div moveto
+    fname show
+
+    % user supplied header string.
+    user_header_p {
+      /h d_header_h 8 div 5 mul def
+
+      % Implement strict enscript compatibility.
+      user_header_center_str () eq user_header_right_str () eq and {
+        d_header_w user_header_left_str stringwidth pop sub 2 div 
+        h moveto user_header_left_str show
+      } {
+        dbw 5 add h moveto user_header_left_str show
+
+        d_header_w user_header_center_str stringwidth pop sub 2 div 
+        h moveto user_header_center_str show
+
+	d_header_w dbw sub 5 sub user_header_right_str stringwidth pop
+	sub h moveto user_header_right_str show
+      } ifelse
+    } if
+
+  grestore
+} def
+%%EndResource
+/d_page_w 576 def
+/d_page_h 720 def
+/d_header_x 0 def
+/d_header_y 684 def
+/d_header_w 576 def
+/d_header_h 36 def
+/d_footer_x 0 def
+/d_footer_y 0 def
+/d_footer_w 576 def
+/d_footer_h 0 def
+/d_output_w 576 def
+/d_output_h 684 def
+/cols 1 def
+%%EndSetup
+%%Page: (1) 1
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 1 def
+/fname (matchseed.pl) def
+/fdir (.) def
+/ftail (matchseed.pl) def
+% User defined strings:
+/pagenumstr (1) def
+/moddatestr (06/26/15) def
+/modtimestr (10:39:57) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+25.2 673 M (1:) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 673 M
+(#!/usr/bin/perl -w) s
+/F-gs-font 8 8 SF
+25.2 664 M (2:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+25.2 655 M (3:) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 655 M
+(# 1a. Given a miR 'seed'\(N\) and a long nucleotide sequence \(mRNA\), find the start & ) s
+/F-gs-font 8 8 SF
+25.2 646 M (4:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 646 M
+(#     the end locations of the n-mers\(=match 'site'\) on the target.) s
+/F-gs-font 8 8 SF
+25.2 637 M (5:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 637 M
+(#) s
+/F-gs-font 8 8 SF
+25.2 628 M (6:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 628 M
+(#  b. Extend 2 x the Length of remaining microRNA\(N-n\) on either side of the matched site. ) s
+/F-gs-font 8 8 SF
+25.2 619 M (7:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 619 M
+(#     Find the free-energy change during hybridization, delta_G_H, using the RNAcofold, e.g.,) s
+/F-gs-font 8 8 SF
+25.2 610 M (8:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 610 M
+(#) s
+/F-gs-font 8 8 SF
+25.2 601 M (9:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 601 M
+(#     echo "AUUUUCGCGAAAAAAAAAAAAAAAAAAAAAAAAUUUUCCCCGGG&UUUUUUUUUUUUUUUUUUUUUUUUUCGCG" | RNAcofold --noGU --n) s
+5 592 M
+(oPS) s
+/F-gs-font 8 8 SF
+20.4 583 M (10:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 583 M
+(#) s
+/F-gs-font 8 8 SF
+20.4 574 M (11:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 574 M
+(#     AUUUUCGCGAAAAAAAAAAAAAAAAAAAAAAAAUUUUCCCCGGG&UUUUUUUUUUUUUUUUUUUUUUUUUCGCG) s
+/F-gs-font 8 8 SF
+20.4 565 M (12:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 565 M
+(#     .....\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(\(...........&.\)\)\)\)\)\)\)\)\)\)\)\)\)\)\)\)\)\)\)\)\)\)\)\)\)\)\)\) \(-27.20\)) s
+/F-gs-font 8 8 SF
+20.4 556 M (13:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 556 M
+(#) s
+/F-gs-font 8 8 SF
+20.4 547 M (14:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 547 M
+(#  c. Find the local unpaired probabilities at the matched sites using the RNAplfold, ) s
+/F-gs-font 8 8 SF
+20.4 538 M (15:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 538 M
+(#     W = 80, L = 40, u = 20.) s
+/F-gs-font 8 8 SF
+20.4 529 M (16:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+20.4 520 M (17:) s
+20.4 511 M (18:) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 511 M
+(use) s
+/F-gs-font 8 8 SF
+0 setgray
+54 511 M
+( strict;) s
+20.4 502 M (19:) s
+20.4 493 M (20:) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 493 M
+(# input args) s
+/F-gs-font 8 8 SF
+20.4 484 M (21:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 484 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+49.2 484 M
+( $UTR = $ARGV[0];) s
+20.4 475 M (22:) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 475 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+49.2 475 M
+( $miR = $ARGV[1];) s
+20.4 466 M (23:) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 466 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+49.2 466 M
+( $len_mer = $ARGV[2]; ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+154.8 466 M
+(# length of mer) s
+/F-gs-font 8 8 SF
+20.4 457 M (24:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 457 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+49.2 457 M
+( $tarID = $ARGV[3]; ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+145.2 457 M
+(# optional) s
+/F-gs-font 8 8 SF
+20.4 448 M (25:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 448 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+49.2 448 M
+( $miRID = $ARGV[4]; ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+145.2 448 M
+(# optional) s
+/F-gs-font 8 8 SF
+20.4 439 M (26:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+20.4 430 M (27:) s
+20.4 421 M (28:) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 421 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+49.2 421 M
+( $seed = ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+92.4 421 M
+(substr) s
+/F-gs-font 8 8 SF
+0 setgray
+121.2 421 M
+(\($miR, 1, 6\); ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+188.4 421 M
+(# nuc. 2-7) s
+/F-gs-font 8 8 SF
+20.4 412 M (29:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 412 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+49.2 412 M
+( $len_miR = ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+106.8 412 M
+(length) s
+/F-gs-font 8 8 SF
+0 setgray
+135.6 412 M
+(\($miR\);) s
+20.4 403 M (30:) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 403 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+49.2 403 M
+( $len_extension = 2 * \($len_miR - $len_mer\);) s
+20.4 394 M (31:) s
+20.4 385 M (32:) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 385 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+49.2 385 M
+( @mers = get_mers\($seed, $len_mer\);) s
+20.4 376 M (33:) s
+20.4 367 M (34:) s
+20.4 358 M (35:) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 358 M
+(# Compute the change in Gibbs free-energy during hybridization) s
+/F-gs-font 8 8 SF
+20.4 349 M (36:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 349 M
+(# Write the local match neighboring sequences-microRNA duplex in a fasta file) s
+/F-gs-font 8 8 SF
+20.4 340 M (37:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 340 M
+({) s
+20.4 331 M (38:) s
+39.6 331 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 331 M
+(local) s
+/F-gs-font 8 8 SF
+0 setgray
+73.2 331 M
+( *STDOUT;) s
+20.4 322 M (39:) s
+39.6 322 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 322 M
+(open) s
+/F-gs-font 8 8 SF
+0 setgray
+68.4 322 M
+(\(STDOUT, ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+111.6 322 M
+(">tmp.fa") s
+/F-gs-font 8 8 SF
+0 setgray
+154.8 322 M
+(\) ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+164.4 322 M
+(or) s
+/F-gs-font 8 8 SF
+0 setgray
+174 322 M
+( ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+178.8 322 M
+(die) s
+/F-gs-font 8 8 SF
+0 setgray
+193.2 322 M
+( ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+198 322 M
+("cannot open file error: $!") s
+/F-gs-font 8 8 SF
+0 setgray
+332.4 322 M
+(;) s
+20.4 313 M (40:) s
+39.6 313 M
+(  print_extd_sequences_in_fasta_format\(\\@mers, $len_extension, \\$UTR, $tarID, $miRID, $miR\);) s
+20.4 304 M (41:) s
+39.6 304 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 304 M
+(close) s
+/F-gs-font 8 8 SF
+0 setgray
+73.2 304 M
+( STDOUT;) s
+20.4 295 M (42:) s
+39.6 295 M
+(}) s
+20.4 286 M (43:) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 286 M
+(# Fold the sequences with RNAcofold) s
+/F-gs-font 8 8 SF
+20.4 277 M (44:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 277 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+49.2 277 M
+( $cmd = ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+87.6 277 M
+("RNAcofold --noPS --noGU <tmp.fa >tmp.str") s
+/F-gs-font 8 8 SF
+0 setgray
+289.2 277 M
+(; ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+298.8 277 M
+(# Not allow G-U pairings) s
+/F-gs-font 8 8 SF
+20.4 268 M (45:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 268 M
+(system\($cmd\);) s
+20.4 259 M (46:) s
+20.4 250 M (47:) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 250 M
+(# print_str_file\('tmp.str'\);) s
+/F-gs-font 8 8 SF
+20.4 241 M (48:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 241 M
+(# print_fastaTotext\('tmp.str'\);) s
+/F-gs-font 8 8 SF
+20.4 232 M (49:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+20.4 223 M (50:) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 223 M
+(# Input .str file and print the imperfect match sites in .npp file) s
+/F-gs-font 8 8 SF
+20.4 214 M (51:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 214 M
+(# print_imperfect_match_sites\('tmp.str'\);) s
+/F-gs-font 8 8 SF
+20.4 205 M (52:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+20.4 196 M (53:) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 196 M
+(# \(c\) Compute the local unpaired probabilities) s
+/F-gs-font 8 8 SF
+20.4 187 M (54:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 187 M
+(# Write the local match neighboring sequences in a fasta file) s
+/F-gs-font 8 8 SF
+20.4 178 M (55:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 178 M
+({) s
+20.4 169 M (56:) s
+39.6 169 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 169 M
+(local) s
+/F-gs-font 8 8 SF
+0 setgray
+73.2 169 M
+( *STDOUT;) s
+20.4 160 M (57:) s
+39.6 160 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 160 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 160 M
+( $M = 20; ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+106.8 160 M
+(# check why not 40? length of extension on each side of the match) s
+/F-gs-font 8 8 SF
+20.4 151 M (58:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 151 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 151 M
+(open) s
+/F-gs-font 8 8 SF
+0 setgray
+68.4 151 M
+(\(STDOUT, ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+111.6 151 M
+(">tmp2.fa") s
+/F-gs-font 8 8 SF
+0 setgray
+159.6 151 M
+(\) ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+169.2 151 M
+(or) s
+/F-gs-font 8 8 SF
+0 setgray
+178.8 151 M
+( ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+183.6 151 M
+(die) s
+/F-gs-font 8 8 SF
+0 setgray
+198 151 M
+( ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+202.8 151 M
+("cannot open file error: $!") s
+/F-gs-font 8 8 SF
+0 setgray
+337.2 151 M
+(;) s
+20.4 142 M (59:) s
+39.6 142 M
+(  print_extd_sequences_in_fasta_format\(\\@mers, $M, \\$UTR, $tarID, $miRID, ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+394.8 142 M
+('') s
+/F-gs-font 8 8 SF
+0 setgray
+404.4 142 M
+(\);) s
+20.4 133 M (60:) s
+39.6 133 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 133 M
+(close) s
+/F-gs-font 8 8 SF
+0 setgray
+73.2 133 M
+(\(STDOUT\);) s
+20.4 124 M (61:) s
+39.6 124 M
+(}) s
+20.4 115 M (62:) s
+20.4 106 M (63:) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 106 M
+(open) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 106 M
+(\(IN, ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+82.8 106 M
+("<tmp2.fa") s
+/F-gs-font 8 8 SF
+0 setgray
+130.8 106 M
+(\) ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+140.4 106 M
+(or) s
+/F-gs-font 8 8 SF
+0 setgray
+150 106 M
+( ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+154.8 106 M
+(die) s
+/F-gs-font 8 8 SF
+0 setgray
+169.2 106 M
+(\() s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+174 106 M
+("cannot open file error: $!") s
+/F-gs-font 8 8 SF
+0 setgray
+308.4 106 M
+(\);) s
+20.4 97 M (64:) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 97 M
+(# for each sequence in the .fa file find unpaired probability) s
+/F-gs-font 8 8 SF
+20.4 88 M (65:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 88 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+49.2 88 M
+(\($W, $L, $u\) = \(10, 10, 6\); ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+183.6 88 M
+(# default values: \(80, 40, 20\); $u >= $len) s
+/F-gs-font 8 8 SF
+20.4 79 M (66:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+20.4 70 M (67:) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 70 M
+(local) s
+/F-gs-font 8 8 SF
+0 setgray
+63.6 70 M
+( $/ = ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+92.4 70 M
+('>') s
+/F-gs-font 8 8 SF
+0 setgray
+106.8 70 M
+(;) s
+20.4 61 M (68:) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 61 M
+(getc) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 61 M
+(\(IN\);) s
+20.4 52 M (69:) s
+20.4 43 M (70:) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 43 M
+(while) s
+/F-gs-font 8 8 SF
+0 setgray
+63.6 43 M
+(\(<IN>\){) s
+20.4 34 M (71:) s
+39.6 34 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 34 M
+(chomp) s
+/F-gs-font 8 8 SF
+0 setgray
+73.2 34 M
+(\(\);) s
+20.4 25 M (72:) s
+39.6 25 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 25 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 25 M
+(\($Head, $seq\) = ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+135.6 25 M
+(split) s
+/F-gs-font 8 8 SF
+0 setgray
+159.6 25 M
+(\() s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+164.4 25 M
+("\\n") s
+/F-gs-font 8 8 SF
+0 setgray
+183.6 25 M
+(\);) s
+20.4 16 M (73:) s
+39.6 16 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 16 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 16 M
+(\($tarID, $miRID, $Len, $s, $e, $mer, $len, $st, $en, $st_mer, $end_mer\) = ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+414 16 M
+(split) s
+/F-gs-font 8 8 SF
+0 setgray
+438 16 M
+(\() s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+442.8 16 M
+('_') s
+/F-gs-font 8 8 SF
+0 setgray
+457.2 16 M
+(, $Head\);) s
+20.4 7 M (74:) s
+39.6 7 M
+(  $cmd = ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+82.8 7 M
+("echo $seq | RNAplfold -W $W -L $L -u $u") s
+/F-gs-font 8 8 SF
+0 setgray
+279.6 7 M
+(; ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+289.2 7 M
+(# output in plfold_lunp by default) s
+_R
+S
+%%Page: (2) 2
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 2 def
+/fname (matchseed.pl) def
+/fdir (.) def
+/ftail (matchseed.pl) def
+/Courier-Oblique 8 8 SUF
+% User defined strings:
+/pagenumstr (2) def
+/moddatestr (06/26/15) def
+/modtimestr (10:39:57) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+0.698039 0.133333 0.133333 setrgbcolor
+/F-gs-font 8 8 SF
+20.4 673 M (75:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 673 M
+(  system\($cmd\);) s
+20.4 664 M (76:) s
+20.4 655 M (77:) s
+39.6 655 M
+(  ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+49.2 655 M
+(# load the probability matrix from the file) s
+/F-gs-font 8 8 SF
+20.4 646 M (78:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 646 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 646 M
+(open) s
+/F-gs-font 8 8 SF
+0 setgray
+68.4 646 M
+(\(LF, ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+92.4 646 M
+("<plfold_lunp") s
+/F-gs-font 8 8 SF
+0 setgray
+159.6 646 M
+(\) ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+169.2 646 M
+(or) s
+/F-gs-font 8 8 SF
+0 setgray
+178.8 646 M
+( ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+183.6 646 M
+(die) s
+/F-gs-font 8 8 SF
+0 setgray
+198 646 M
+(\() s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+202.8 646 M
+("cannot open file error: $!") s
+/F-gs-font 8 8 SF
+0 setgray
+337.2 646 M
+(\);) s
+20.4 637 M (79:) s
+39.6 637 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 637 M
+(local) s
+/F-gs-font 8 8 SF
+0 setgray
+73.2 637 M
+( $/ = ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+102 637 M
+("\\n") s
+/F-gs-font 8 8 SF
+0 setgray
+121.2 637 M
+(;) s
+20.4 628 M (80:) s
+39.6 628 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 628 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 628 M
+( $line = <LF>; ) s
+20.4 619 M (81:) s
+39.6 619 M
+(  $line = <LF>;) s
+20.4 610 M (82:) s
+39.6 610 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 610 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 610 M
+(\($i, @array\) = \(0\);) s
+20.4 601 M (83:) s
+39.6 601 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 601 M
+(while) s
+/F-gs-font 8 8 SF
+0 setgray
+73.2 601 M
+(\(<LF>\){) s
+20.4 592 M (84:) s
+39.6 592 M
+(    $array[$i++] = [) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+135.6 592 M
+(split) s
+/F-gs-font 8 8 SF
+0 setgray
+159.6 592 M
+(\() s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+164.4 592 M
+("\\t+") s
+/F-gs-font 8 8 SF
+0 setgray
+188.4 592 M
+(\)]; ) s
+20.4 583 M (85:) s
+39.6 583 M
+(  }) s
+20.4 574 M (86:) s
+39.6 574 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 574 M
+(close) s
+/F-gs-font 8 8 SF
+0 setgray
+73.2 574 M
+( LF;) s
+20.4 565 M (87:) s
+39.6 565 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 565 M
+(local) s
+/F-gs-font 8 8 SF
+0 setgray
+73.2 565 M
+( $/ = ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+102 565 M
+('>') s
+/F-gs-font 8 8 SF
+0 setgray
+116.4 565 M
+(;) s
+20.4 556 M (88:) s
+39.6 556 M
+(  ) s
+20.4 547 M (89:) s
+39.6 547 M
+(  ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+49.2 547 M
+(# extract the probability that the match site is unpaired ) s
+/F-gs-font 8 8 SF
+20.4 538 M (90:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 538 M
+(  ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+49.2 538 M
+(# row corresponds to the position, i of nucleotide in the sequence) s
+/F-gs-font 8 8 SF
+20.4 529 M (91:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 529 M
+(  ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+49.2 529 M
+(# column corresponds to the length, L of the sequence between [i-L+1 .. i]) s
+/F-gs-font 8 8 SF
+20.4 520 M (92:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 520 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 520 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 520 M
+( @arr = @{$array[$end_mer]}; ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+198 520 M
+(# list of probabilities corresponding to the last position in the mer) s
+/F-gs-font 8 8 SF
+20.4 511 M (93:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 511 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 511 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 511 M
+( $Pr_unpaired = $arr[$len]; ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+193.2 511 M
+(# column number is the length of the mer) s
+/F-gs-font 8 8 SF
+20.4 502 M (94:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+20.4 493 M (95:) s
+39.6 493 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 493 M
+(print) s
+/F-gs-font 8 8 SF
+0 setgray
+73.2 493 M
+( ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+78 493 M
+("Probability of $Head = $Pr_unpaired\\n") s
+/F-gs-font 8 8 SF
+0 setgray
+265.2 493 M
+(;) s
+20.4 484 M (96:) s
+39.6 484 M
+(}) s
+20.4 475 M (97:) s
+20.4 466 M (98:) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 466 M
+(local) s
+/F-gs-font 8 8 SF
+0 setgray
+63.6 466 M
+( $/ = ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+92.4 466 M
+("\\n") s
+/F-gs-font 8 8 SF
+0 setgray
+111.6 466 M
+(;) s
+20.4 457 M (99:) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 457 M
+(close) s
+/F-gs-font 8 8 SF
+0 setgray
+63.6 457 M
+( IN;) s
+15.6 448 M (100:) s
+15.6 439 M (101:) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 439 M
+(# For each mer in the list @mers extract the neighboring sequences ) s
+/F-gs-font 8 8 SF
+15.6 430 M (102:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 430 M
+(# of length l_offset on both sides of the match in the UTR.) s
+/F-gs-font 8 8 SF
+15.6 421 M (103:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 421 M
+(sub) s
+/F-gs-font 8 8 SF
+0 setgray
+54 421 M
+( print_extd_sequences_in_fasta_format{) s
+15.6 412 M (104:) s
+39.6 412 M
+(  ) s
+15.6 403 M (105:) s
+39.6 403 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 403 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 403 M
+(\($ref_mers, $len_exd, $ref_UTR, $tarID, $miRID, $miR\) = @_;  ) s
+15.6 394 M (106:) s
+39.6 394 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 394 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 394 M
+( @mers = @$ref_mers;) s
+15.6 385 M (107:) s
+39.6 385 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 385 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 385 M
+( $UTR = $$ref_UTR;) s
+15.6 376 M (108:) s
+15.6 367 M (109:) s
+39.6 367 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 367 M
+(foreach) s
+/F-gs-font 8 8 SF
+0 setgray
+82.8 367 M
+( ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+87.6 367 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+97.2 367 M
+( $mer\(@mers\){ ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+164.4 367 M
+(# foreach mer in the seed) s
+/F-gs-font 8 8 SF
+15.6 358 M (110:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+15.6 349 M (111:) s
+39.6 349 M
+(  ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+49.2 349 M
+(# \(a\) Find start and end locations of the n-mer on the target) s
+/F-gs-font 8 8 SF
+15.6 340 M (112:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 340 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 340 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 340 M
+( $comp_mer = complement\($mer\); ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+207.6 340 M
+(# mer is from microRNA, therefore, complementary to the site) s
+/F-gs-font 8 8 SF
+15.6 331 M (113:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 331 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 331 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 331 M
+( @locs = locs_match\($UTR, $comp_mer\); ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+241.2 331 M
+(# coordinates of the match on the UTR) s
+/F-gs-font 8 8 SF
+15.6 322 M (114:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+15.6 313 M (115:) s
+39.6 313 M
+(  ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+49.2 313 M
+(# \(b\) Get the neighborhood local sequence) s
+/F-gs-font 8 8 SF
+15.6 304 M (116:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 304 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 304 M
+(if) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 304 M
+(\($#locs != -1\){ ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+135.6 304 M
+(# check non-empty) s
+/F-gs-font 8 8 SF
+15.6 295 M (117:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+15.6 286 M (118:) s
+39.6 286 M
+(    ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+58.8 286 M
+(# extend the locations and extract the sequences at the extended locations) s
+/F-gs-font 8 8 SF
+15.6 277 M (119:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 277 M
+(    ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+58.8 277 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+68.4 277 M
+(\($ref_offsets, $ref_lengths\) = extended_locs\(\\@locs, $len_exd\); ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+375.6 277 M
+(# coo. on the UTR) s
+/F-gs-font 8 8 SF
+15.6 268 M (120:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 268 M
+(    ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+58.8 268 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+68.4 268 M
+( @ext_sites = get_sites\(\\$UTR, $ref_offsets, $ref_lengths\); ) s
+15.6 259 M (121:) s
+15.6 250 M (122:) s
+39.6 250 M
+(    ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+58.8 250 M
+(# Store the coordinates of the extended sequences in a header ) s
+/F-gs-font 8 8 SF
+15.6 241 M (123:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 241 M
+(    ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+58.8 241 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+68.4 241 M
+( $i = 0; ) s
+15.6 232 M (124:) s
+39.6 232 M
+(    ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+58.8 232 M
+(foreach) s
+/F-gs-font 8 8 SF
+0 setgray
+92.4 232 M
+( ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+97.2 232 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+106.8 232 M
+( $ext_site\(@ext_sites\){) s
+15.6 223 M (125:) s
+39.6 223 M
+(      ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+68.4 223 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+78 223 M
+(\($start, $end\) = ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+159.6 223 M
+(split) s
+/F-gs-font 8 8 SF
+0 setgray
+183.6 223 M
+(\() s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+188.4 223 M
+('_') s
+/F-gs-font 8 8 SF
+0 setgray
+202.8 223 M
+(, $locs[$i]\); ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+270 223 M
+(# coordinates of the match in the UTR) s
+/F-gs-font 8 8 SF
+15.6 214 M (126:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 214 M
+(      ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+68.4 214 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+78 214 M
+( $Head = ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+121.2 214 M
+(">$tarID\\_$miRID\\_$$ref_lengths[$i]\\_") s
+/F-gs-font 8 8 SF
+0 setgray
+303.6 214 M
+( ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+308.4 214 M
+(# length of extended sequence) s
+/F-gs-font 8 8 SF
+15.6 205 M (127:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 205 M
+(               .) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+116.4 205 M
+("$$ref_offsets[$i]\\_") s
+/F-gs-font 8 8 SF
+0 setgray
+217.2 205 M
+(.\($$ref_offsets[$i] + $$ref_lengths[$i] - 1\) ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+433.2 205 M
+(# coordinates of the extd.se) s
+5 196 M
+(q. in UTR) s
+/F-gs-font 8 8 SF
+15.6 187 M (128:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 187 M
+(               .) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+116.4 187 M
+("_$mer\\_6_1_6_") s
+/F-gs-font 8 8 SF
+0 setgray
+188.4 187 M
+( ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+193.2 187 M
+(# 0-coordinates of the seed\(2-7\) in the miR) s
+/F-gs-font 8 8 SF
+15.6 178 M (129:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 178 M
+(               .\($start - $$ref_offsets[$i]\).) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+255.6 178 M
+("\\_") s
+/F-gs-font 8 8 SF
+0 setgray
+274.8 178 M
+(.\($end - $$ref_offsets[$i++]\); ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+423.6 178 M
+(# coordinates of the mer in lo) s
+5 169 M
+(cal seq.) s
+/F-gs-font 8 8 SF
+15.6 160 M (130:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+15.6 151 M (131:) s
+39.6 151 M
+(      ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+68.4 151 M
+(if) s
+/F-gs-font 8 8 SF
+0 setgray
+78 151 M
+(\($miR ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+106.8 151 M
+(ne) s
+/F-gs-font 8 8 SF
+0 setgray
+116.4 151 M
+( ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+121.2 151 M
+('') s
+/F-gs-font 8 8 SF
+0 setgray
+130.8 151 M
+(\){) s
+15.6 142 M (132:) s
+15.6 133 M (133:) s
+39.6 133 M
+(        ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+78 133 M
+(print) s
+/F-gs-font 8 8 SF
+0 setgray
+102 133 M
+( ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+106.8 133 M
+("$Head\\n$ext_site\\&") s
+/F-gs-font 8 8 SF
+0 setgray
+202.8 133 M
+(, ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+212.4 133 M
+(scalar) s
+/F-gs-font 8 8 SF
+0 setgray
+241.2 133 M
+( ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+246 133 M
+(reverse) s
+/F-gs-font 8 8 SF
+0 setgray
+279.6 133 M
+(\($miR\),) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+313.2 133 M
+("\\n") s
+/F-gs-font 8 8 SF
+0 setgray
+332.4 133 M
+(; ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+342 133 M
+(# join the flipiped-miR ) s
+/F-gs-font 8 8 SF
+15.6 124 M (134:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 124 M
+(   ) s
+15.6 115 M (135:) s
+39.6 115 M
+(      } ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+78 115 M
+(else) s
+/F-gs-font 8 8 SF
+0 setgray
+97.2 115 M
+({) s
+15.6 106 M (136:) s
+39.6 106 M
+(   ) s
+15.6 97 M (137:) s
+39.6 97 M
+(        ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+78 97 M
+(print) s
+/F-gs-font 8 8 SF
+0 setgray
+102 97 M
+( ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+106.8 97 M
+("$Head\\n$ext_site\\n") s
+/F-gs-font 8 8 SF
+0 setgray
+202.8 97 M
+(;) s
+15.6 88 M (138:) s
+39.6 88 M
+(   ) s
+15.6 79 M (139:) s
+39.6 79 M
+(      } ) s
+15.6 70 M (140:) s
+15.6 61 M (141:) s
+39.6 61 M
+(   }) s
+15.6 52 M (142:) s
+39.6 52 M
+(  }) s
+15.6 43 M (143:) s
+39.6 43 M
+( }) s
+15.6 34 M (144:) s
+39.6 34 M
+(}) s
+15.6 25 M (145:) s
+15.6 16 M (146:) s
+15.6 7 M (147:) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+39.6 7 M
+(# check perfect pairing at the matched sites and print the imperfect matched sites) s
+_R
+S
+%%Page: (3) 3
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 3 def
+/fname (matchseed.pl) def
+/fdir (.) def
+/ftail (matchseed.pl) def
+/Courier-Oblique 8 8 SUF
+% User defined strings:
+/pagenumstr (3) def
+/moddatestr (06/26/15) def
+/modtimestr (10:39:57) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+0.698039 0.133333 0.133333 setrgbcolor
+/F-gs-font 8 8 SF
+15.6 673 M (148:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 673 M
+(sub) s
+/F-gs-font 8 8 SF
+0 setgray
+54 673 M
+( print_imperfect_match_sites{) s
+15.6 664 M (149:) s
+15.6 655 M (150:) s
+39.6 655 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 655 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 655 M
+( $fname = $_[0];) s
+15.6 646 M (151:) s
+15.6 637 M (152:) s
+39.6 637 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 637 M
+(open) s
+/F-gs-font 8 8 SF
+0 setgray
+68.4 637 M
+(\(FH, ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+92.4 637 M
+("<$fname") s
+/F-gs-font 8 8 SF
+0 setgray
+135.6 637 M
+(\) ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+145.2 637 M
+(or) s
+/F-gs-font 8 8 SF
+0 setgray
+154.8 637 M
+( ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+159.6 637 M
+(die) s
+/F-gs-font 8 8 SF
+0 setgray
+174 637 M
+(\() s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+178.8 637 M
+("cannot open file error: $!") s
+/F-gs-font 8 8 SF
+0 setgray
+313.2 637 M
+(\);) s
+15.6 628 M (153:) s
+39.6 628 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 628 M
+(open) s
+/F-gs-font 8 8 SF
+0 setgray
+68.4 628 M
+(\(FO, ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+92.4 628 M
+(">$fname.npp") s
+/F-gs-font 8 8 SF
+0 setgray
+154.8 628 M
+(\) ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+164.4 628 M
+(or) s
+/F-gs-font 8 8 SF
+0 setgray
+174 628 M
+( ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+178.8 628 M
+(die) s
+/F-gs-font 8 8 SF
+0 setgray
+193.2 628 M
+(\() s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+198 628 M
+("cannot open file error: $!") s
+/F-gs-font 8 8 SF
+0 setgray
+332.4 628 M
+(\);) s
+15.6 619 M (154:) s
+39.6 619 M
+(  ) s
+15.6 610 M (155:) s
+39.6 610 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 610 M
+(local) s
+/F-gs-font 8 8 SF
+0 setgray
+73.2 610 M
+( $/ = ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+102 610 M
+('>') s
+/F-gs-font 8 8 SF
+0 setgray
+116.4 610 M
+(;) s
+15.6 601 M (156:) s
+39.6 601 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 601 M
+(getc) s
+/F-gs-font 8 8 SF
+0 setgray
+68.4 601 M
+(\(FH\);) s
+15.6 592 M (157:) s
+15.6 583 M (158:) s
+39.6 583 M
+(  ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+49.2 583 M
+(# Check the secondary structure for perfect pairing at the matched site) s
+/F-gs-font 8 8 SF
+15.6 574 M (159:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 574 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 574 M
+(while) s
+/F-gs-font 8 8 SF
+0 setgray
+73.2 574 M
+(\(<FH>\){) s
+15.6 565 M (160:) s
+15.6 556 M (161:) s
+39.6 556 M
+(    ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+58.8 556 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+68.4 556 M
+(\($Head, $nseq, $sstr\) = ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+183.6 556 M
+(split) s
+/F-gs-font 8 8 SF
+0 setgray
+207.6 556 M
+(\() s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+212.4 556 M
+("\\n") s
+/F-gs-font 8 8 SF
+0 setgray
+231.6 556 M
+(\);) s
+15.6 547 M (162:) s
+39.6 547 M
+(    ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+58.8 547 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+68.4 547 M
+(\($tarID, $miRID, $L, $s, $e, $mer, $len, $st, $en, $start, $end\) = ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+390 547 M
+(split) s
+/F-gs-font 8 8 SF
+0 setgray
+414 547 M
+(\() s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+418.8 547 M
+('_') s
+/F-gs-font 8 8 SF
+0 setgray
+433.2 547 M
+(, $Head\);) s
+15.6 538 M (163:) s
+15.6 529 M (164:) s
+39.6 529 M
+(    ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+58.8 529 M
+(if) s
+/F-gs-font 8 8 SF
+0 setgray
+68.4 529 M
+(\(!perfect_pair\() s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+140.4 529 M
+(substr) s
+/F-gs-font 8 8 SF
+0 setgray
+169.2 529 M
+(\($sstr, $start, $end - $start + 1\)\)\){) s
+15.6 520 M (165:) s
+15.6 511 M (166:) s
+39.6 511 M
+(       ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+73.2 511 M
+(print) s
+/F-gs-font 8 8 SF
+0 setgray
+97.2 511 M
+( FO ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+116.4 511 M
+(">$Head\\n$nseq\\n$sstr\\n") s
+/F-gs-font 8 8 SF
+0 setgray
+231.6 511 M
+(;) s
+15.6 502 M (167:) s
+39.6 502 M
+(    }) s
+15.6 493 M (168:) s
+39.6 493 M
+(  ) s
+15.6 484 M (169:) s
+39.6 484 M
+(  }      ) s
+15.6 475 M (170:) s
+39.6 475 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 475 M
+(close) s
+/F-gs-font 8 8 SF
+0 setgray
+73.2 475 M
+( FH;) s
+15.6 466 M (171:) s
+39.6 466 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 466 M
+(close) s
+/F-gs-font 8 8 SF
+0 setgray
+73.2 466 M
+( FO;) s
+15.6 457 M (172:) s
+15.6 448 M (173:) s
+39.6 448 M
+(}) s
+15.6 439 M (174:) s
+15.6 430 M (175:) s
+15.6 421 M (176:) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 421 M
+(sub) s
+/F-gs-font 8 8 SF
+0 setgray
+54 421 M
+( perfect_pair{) s
+15.6 412 M (177:) s
+15.6 403 M (178:) s
+39.6 403 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 403 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 403 M
+( $str = $_[0];) s
+15.6 394 M (179:) s
+15.6 385 M (180:) s
+39.6 385 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 385 M
+(if) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 385 M
+(\($str ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+87.6 385 M
+(eq) s
+/F-gs-font 8 8 SF
+0 setgray
+97.2 385 M
+( ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+102 385 M
+('\(\(\(\(') s
+/F-gs-font 8 8 SF
+0 setgray
+130.8 385 M
+(\){) s
+15.6 376 M (181:) s
+39.6 376 M
+(    ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+58.8 376 M
+(return) s
+/F-gs-font 8 8 SF
+0 setgray
+87.6 376 M
+( 1;) s
+15.6 367 M (182:) s
+39.6 367 M
+(  } ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+58.8 367 M
+(else) s
+/F-gs-font 8 8 SF
+0 setgray
+78 367 M
+({) s
+15.6 358 M (183:) s
+39.6 358 M
+(    ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+58.8 358 M
+(return) s
+/F-gs-font 8 8 SF
+0 setgray
+87.6 358 M
+( 0;) s
+15.6 349 M (184:) s
+39.6 349 M
+(  }) s
+15.6 340 M (185:) s
+15.6 331 M (186:) s
+39.6 331 M
+(}) s
+15.6 322 M (187:) s
+15.6 313 M (188:) s
+15.6 304 M (189:) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 304 M
+(sub) s
+/F-gs-font 8 8 SF
+0 setgray
+54 304 M
+( print_str_file{) s
+15.6 295 M (190:) s
+15.6 286 M (191:) s
+39.6 286 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 286 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 286 M
+( $str_file = $_[0];) s
+15.6 277 M (192:) s
+39.6 277 M
+(  ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+49.2 277 M
+(# extract and print secondary structure of the matches) s
+/F-gs-font 8 8 SF
+15.6 268 M (193:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 268 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 268 M
+(open) s
+/F-gs-font 8 8 SF
+0 setgray
+68.4 268 M
+(\(SF, ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+92.4 268 M
+("<$str_file") s
+/F-gs-font 8 8 SF
+0 setgray
+150 268 M
+(\) ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+159.6 268 M
+(or) s
+/F-gs-font 8 8 SF
+0 setgray
+169.2 268 M
+( ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+174 268 M
+(die) s
+/F-gs-font 8 8 SF
+0 setgray
+188.4 268 M
+( ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+193.2 268 M
+("cannot open file error: $!") s
+/F-gs-font 8 8 SF
+0 setgray
+327.6 268 M
+(;) s
+15.6 259 M (194:) s
+39.6 259 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 259 M
+(local) s
+/F-gs-font 8 8 SF
+0 setgray
+73.2 259 M
+( $/ = ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+102 259 M
+('>') s
+/F-gs-font 8 8 SF
+0 setgray
+116.4 259 M
+(;) s
+15.6 250 M (195:) s
+39.6 250 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 250 M
+(getc) s
+/F-gs-font 8 8 SF
+0 setgray
+68.4 250 M
+(\(SF\);) s
+15.6 241 M (196:) s
+39.6 241 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 241 M
+(while) s
+/F-gs-font 8 8 SF
+0 setgray
+73.2 241 M
+(\(<SF>\){) s
+15.6 232 M (197:) s
+39.6 232 M
+(    ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+58.8 232 M
+(chomp) s
+/F-gs-font 8 8 SF
+0 setgray
+82.8 232 M
+(\(\);) s
+15.6 223 M (198:) s
+39.6 223 M
+(    ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+58.8 223 M
+(print) s
+/F-gs-font 8 8 SF
+0 setgray
+82.8 223 M
+( ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+87.6 223 M
+(">$_") s
+/F-gs-font 8 8 SF
+0 setgray
+111.6 223 M
+(;) s
+15.6 214 M (199:) s
+39.6 214 M
+(  }) s
+15.6 205 M (200:) s
+39.6 205 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 205 M
+(close) s
+/F-gs-font 8 8 SF
+0 setgray
+73.2 205 M
+( SF;) s
+15.6 196 M (201:) s
+15.6 187 M (202:) s
+39.6 187 M
+(}) s
+15.6 178 M (203:) s
+15.6 169 M (204:) s
+15.6 160 M (205:) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 160 M
+(sub) s
+/F-gs-font 8 8 SF
+0 setgray
+54 160 M
+( print_fastaTotext{) s
+15.6 151 M (206:) s
+15.6 142 M (207:) s
+39.6 142 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 142 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 142 M
+( $fa_file = $_[0];) s
+15.6 133 M (208:) s
+39.6 133 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 133 M
+(local) s
+/F-gs-font 8 8 SF
+0 setgray
+73.2 133 M
+( $/ = ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+102 133 M
+('>') s
+/F-gs-font 8 8 SF
+0 setgray
+116.4 133 M
+(;) s
+15.6 124 M (209:) s
+39.6 124 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 124 M
+(open) s
+/F-gs-font 8 8 SF
+0 setgray
+68.4 124 M
+(\(FA, ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+92.4 124 M
+("<$fa_file") s
+/F-gs-font 8 8 SF
+0 setgray
+145.2 124 M
+(\) ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+154.8 124 M
+(or) s
+/F-gs-font 8 8 SF
+0 setgray
+164.4 124 M
+( ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+169.2 124 M
+(die) s
+/F-gs-font 8 8 SF
+0 setgray
+183.6 124 M
+( ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+188.4 124 M
+("cannot open file error: $!") s
+/F-gs-font 8 8 SF
+0 setgray
+322.8 124 M
+(;) s
+15.6 115 M (210:) s
+39.6 115 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 115 M
+(getc) s
+/F-gs-font 8 8 SF
+0 setgray
+68.4 115 M
+(\(FA\);) s
+15.6 106 M (211:) s
+39.6 106 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 106 M
+(while) s
+/F-gs-font 8 8 SF
+0 setgray
+73.2 106 M
+(\(<FA>\){      ) s
+15.6 97 M (212:) s
+39.6 97 M
+(    ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+58.8 97 M
+(chomp) s
+/F-gs-font 8 8 SF
+0 setgray
+82.8 97 M
+(;) s
+15.6 88 M (213:) s
+39.6 88 M
+(    /\(.*\)\\) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+87.6 88 M
+(s) s
+/F-gs-font 8 8 SF
+0 setgray
+92.4 88 M
+(+\(.*\)\\) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+121.2 88 M
+(s) s
+/F-gs-font 8 8 SF
+0 setgray
+126 88 M
+(+\(.*\)\\) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+154.8 88 M
+(s) s
+/F-gs-font 8 8 SF
+0 setgray
+159.6 88 M
+(+\\\(\(.*\)\\\)\\) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+207.6 88 M
+(s) s
+/F-gs-font 8 8 SF
+0 setgray
+212.4 88 M
+(+/; ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+231.6 88 M
+(#/^\([^\\n]+\)\\n\([AUGCT]+\)\\n\([\(.\)]+\).\\\(\(.*\)\\\)\\n/i;) s
+/F-gs-font 8 8 SF
+15.6 79 M (214:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 79 M
+(    ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+58.8 79 M
+(print) s
+/F-gs-font 8 8 SF
+0 setgray
+82.8 79 M
+( ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+87.6 79 M
+("$1\\t$2\\t$3\\t$4\\n") s
+/F-gs-font 8 8 SF
+0 setgray
+174 79 M
+(;) s
+15.6 70 M (215:) s
+39.6 70 M
+(  }) s
+15.6 61 M (216:) s
+39.6 61 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 61 M
+(close) s
+/F-gs-font 8 8 SF
+0 setgray
+73.2 61 M
+( FA;) s
+15.6 52 M (217:) s
+15.6 43 M (218:) s
+39.6 43 M
+(}) s
+15.6 34 M (219:) s
+15.6 25 M (220:) s
+15.6 16 M (221:) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 16 M
+(sub) s
+/F-gs-font 8 8 SF
+0 setgray
+54 16 M
+( get_sites { ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+116.4 16 M
+(# get sites on the target) s
+/F-gs-font 8 8 SF
+15.6 7 M (222:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+_R
+S
+%%Page: (4) 4
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 4 def
+/fname (matchseed.pl) def
+/fdir (.) def
+/ftail (matchseed.pl) def
+% User defined strings:
+/pagenumstr (4) def
+/moddatestr (06/26/15) def
+/modtimestr (10:39:57) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+15.6 673 M (223:) s
+39.6 673 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 673 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 673 M
+(\($ref_lseq, $ref_offsets, $ref_lengths\) = @_;) s
+15.6 664 M (224:) s
+15.6 655 M (225:) s
+39.6 655 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 655 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 655 M
+(\(@ext_sites\);) s
+15.6 646 M (226:) s
+39.6 646 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 646 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 646 M
+( $N = ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+87.6 646 M
+(length) s
+/F-gs-font 8 8 SF
+0 setgray
+116.4 646 M
+(\($$ref_lseq\);) s
+15.6 637 M (227:) s
+39.6 637 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 637 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 637 M
+( $i = 0;) s
+15.6 628 M (228:) s
+15.6 619 M (229:) s
+39.6 619 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 619 M
+(foreach) s
+/F-gs-font 8 8 SF
+0 setgray
+82.8 619 M
+( ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+87.6 619 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+97.2 619 M
+( $offset\(@$ref_offsets\){) s
+15.6 610 M (230:) s
+39.6 610 M
+(  ) s
+15.6 601 M (231:) s
+39.6 601 M
+(    ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+58.8 601 M
+(if) s
+/F-gs-font 8 8 SF
+0 setgray
+68.4 601 M
+(\($offset >= 0 && \($offset + $$ref_lengths[$i]\) < $N\){) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+322.8 601 M
+(# handle exception if above extremes) s
+/F-gs-font 8 8 SF
+15.6 592 M (232:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 592 M
+(      ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+68.4 592 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+78 592 M
+( $ext_site = ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+140.4 592 M
+(substr) s
+/F-gs-font 8 8 SF
+0 setgray
+169.2 592 M
+(\($$ref_lseq, $offset, $$ref_lengths[$i++]\);) s
+15.6 583 M (233:) s
+39.6 583 M
+(      ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+68.4 583 M
+(push) s
+/F-gs-font 8 8 SF
+0 setgray
+87.6 583 M
+( @ext_sites, $ext_site;) s
+15.6 574 M (234:) s
+39.6 574 M
+(    }) s
+15.6 565 M (235:) s
+39.6 565 M
+(  }) s
+15.6 556 M (236:) s
+15.6 547 M (237:) s
+39.6 547 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 547 M
+(return) s
+/F-gs-font 8 8 SF
+0 setgray
+78 547 M
+( @ext_sites;) s
+15.6 538 M (238:) s
+15.6 529 M (239:) s
+39.6 529 M
+(}) s
+15.6 520 M (240:) s
+15.6 511 M (241:) s
+15.6 502 M (242:) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 502 M
+(sub) s
+/F-gs-font 8 8 SF
+0 setgray
+54 502 M
+( extended_locs{ ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+130.8 502 M
+(# compute the coordinates after extension) s
+/F-gs-font 8 8 SF
+15.6 493 M (243:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+15.6 484 M (244:) s
+39.6 484 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 484 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 484 M
+(\($ref_locs, $len_ext\) = @_;) s
+15.6 475 M (245:) s
+15.6 466 M (246:) s
+39.6 466 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 466 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 466 M
+(\(@offsets, @lengths\);) s
+15.6 457 M (247:) s
+15.6 448 M (248:) s
+39.6 448 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 448 M
+(foreach) s
+/F-gs-font 8 8 SF
+0 setgray
+82.8 448 M
+(\(@$ref_locs\){) s
+15.6 439 M (249:) s
+15.6 430 M (250:) s
+39.6 430 M
+(    ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+58.8 430 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+68.4 430 M
+(\($s, $e\) = ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+121.2 430 M
+(split) s
+/F-gs-font 8 8 SF
+0 setgray
+145.2 430 M
+(\() s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+150 430 M
+("_") s
+/F-gs-font 8 8 SF
+0 setgray
+164.4 430 M
+(\);) s
+15.6 421 M (251:) s
+39.6 421 M
+(    ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+58.8 421 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+68.4 421 M
+(\($offset, $length\) = \($s - $len_ext, \($e - $s + 1\) + 2 * $len_ext\); ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+394.8 421 M
+(#) s
+/F-gs-font 8 8 SF
+15.6 412 M (252:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+15.6 403 M (253:) s
+39.6 403 M
+(    ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+58.8 403 M
+(push) s
+/F-gs-font 8 8 SF
+0 setgray
+78 403 M
+( @offsets, $offset;) s
+15.6 394 M (254:) s
+39.6 394 M
+(    ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+58.8 394 M
+(push) s
+/F-gs-font 8 8 SF
+0 setgray
+78 394 M
+( @lengths, $length;) s
+15.6 385 M (255:) s
+39.6 385 M
+(    ) s
+15.6 376 M (256:) s
+39.6 376 M
+(  }) s
+15.6 367 M (257:) s
+15.6 358 M (258:) s
+39.6 358 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 358 M
+(return) s
+/F-gs-font 8 8 SF
+0 setgray
+78 358 M
+(\(\\@offsets, \\@lengths\);) s
+15.6 349 M (259:) s
+15.6 340 M (260:) s
+39.6 340 M
+(}) s
+15.6 331 M (261:) s
+15.6 322 M (262:) s
+15.6 313 M (263:) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 313 M
+(sub) s
+/F-gs-font 8 8 SF
+0 setgray
+54 313 M
+( print_locs_all_mers_in_target{) s
+15.6 304 M (264:) s
+15.6 295 M (265:) s
+39.6 295 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 295 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 295 M
+(\($longseq, $seed, $len_mer\) = @_;) s
+15.6 286 M (266:) s
+39.6 286 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 286 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 286 M
+( @mers = get_mers\($seed, $len_mer\);) s
+15.6 277 M (267:) s
+15.6 268 M (268:) s
+39.6 268 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 268 M
+(foreach) s
+/F-gs-font 8 8 SF
+0 setgray
+82.8 268 M
+( ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+87.6 268 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+97.2 268 M
+( $mer\(@mers\){) s
+15.6 259 M (269:) s
+15.6 250 M (270:) s
+39.6 250 M
+(    ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+58.8 250 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+68.4 250 M
+( $comp_mer = complement\($mer\);) s
+15.6 241 M (271:) s
+39.6 241 M
+(    ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+58.8 241 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+68.4 241 M
+( @locs = locs_match\($longseq, $comp_mer\);) s
+15.6 232 M (272:) s
+39.6 232 M
+(   ) s
+15.6 223 M (273:) s
+39.6 223 M
+(    ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+58.8 223 M
+(print) s
+/F-gs-font 8 8 SF
+0 setgray
+82.8 223 M
+( ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+87.6 223 M
+("$longseq\\t$seed\\t$len_mer\\t$mer\\t") s
+/F-gs-font 8 8 SF
+0 setgray
+255.6 223 M
+(, ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+265.2 223 M
+(join) s
+/F-gs-font 8 8 SF
+0 setgray
+284.4 223 M
+(\() s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+289.2 223 M
+("\\n$longseq\\t$seed\\t$len_mer\\t$mer\\t") s
+/F-gs-font 8 8 SF
+0 setgray
+466.8 223 M
+(, @locs\), ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+514.8 223 M
+("\\n") s
+/F-gs-font 8 8 SF
+0 setgray
+534 223 M
+(;) s
+15.6 214 M (274:) s
+15.6 205 M (275:) s
+39.6 205 M
+(  }) s
+15.6 196 M (276:) s
+15.6 187 M (277:) s
+39.6 187 M
+(}) s
+15.6 178 M (278:) s
+15.6 169 M (279:) s
+15.6 160 M (280:) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 160 M
+(sub) s
+/F-gs-font 8 8 SF
+0 setgray
+54 160 M
+( get_mers {) s
+15.6 151 M (281:) s
+39.6 151 M
+(  ) s
+15.6 142 M (282:) s
+39.6 142 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 142 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 142 M
+(\($seed, $len_mer\) = @_;) s
+15.6 133 M (283:) s
+39.6 133 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 133 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 133 M
+(\(@mers,$i\);) s
+15.6 124 M (284:) s
+15.6 115 M (285:) s
+39.6 115 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 115 M
+(while) s
+/F-gs-font 8 8 SF
+0 setgray
+73.2 115 M
+(\() s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+78 115 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+87.6 115 M
+( $mer = ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+126 115 M
+(substr) s
+/F-gs-font 8 8 SF
+0 setgray
+154.8 115 M
+(\($seed, $i++, $len_mer\)\){) s
+15.6 106 M (286:) s
+15.6 97 M (287:) s
+39.6 97 M
+(    ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+58.8 97 M
+(if) s
+/F-gs-font 8 8 SF
+0 setgray
+68.4 97 M
+(\() s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+73.2 97 M
+(length) s
+/F-gs-font 8 8 SF
+0 setgray
+102 97 M
+(\($mer\) == $len_mer\){) s
+15.6 88 M (288:) s
+39.6 88 M
+(      ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+68.4 88 M
+(push) s
+/F-gs-font 8 8 SF
+0 setgray
+87.6 88 M
+( @mers, $mer;) s
+15.6 79 M (289:) s
+39.6 79 M
+(    }) s
+15.6 70 M (290:) s
+39.6 70 M
+(  }) s
+15.6 61 M (291:) s
+15.6 52 M (292:) s
+39.6 52 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 52 M
+(return) s
+/F-gs-font 8 8 SF
+0 setgray
+78 52 M
+( @mers;) s
+15.6 43 M (293:) s
+15.6 34 M (294:) s
+39.6 34 M
+(}) s
+15.6 25 M (295:) s
+15.6 16 M (296:) s
+15.6 7 M (297:) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 7 M
+(sub) s
+/F-gs-font 8 8 SF
+0 setgray
+54 7 M
+( complement {) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+116.4 7 M
+(# \(i\) complement the seed: A <-> U, G <-> C) s
+_R
+S
+%%Page: (5) 5
+%%BeginPageSetup
+_S
+18 36 translate
+/pagenum 5 def
+/fname (matchseed.pl) def
+/fdir (.) def
+/ftail (matchseed.pl) def
+/Courier-Oblique 8 8 SUF
+% User defined strings:
+/pagenumstr (5) def
+/moddatestr (06/26/15) def
+/modtimestr (10:39:57) def
+/user_header_p false def
+/user_footer_p false def
+%%EndPageSetup
+do_header
+0.698039 0.133333 0.133333 setrgbcolor
+/F-gs-font 8 8 SF
+15.6 673 M (298:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 673 M
+(  ) s
+15.6 664 M (299:) s
+39.6 664 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 664 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 664 M
+(\($pattern\) = @_;) s
+15.6 655 M (300:) s
+39.6 655 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 655 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 655 M
+( %COMPLEMENT = \( ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+140.4 655 M
+('A') s
+/F-gs-font 8 8 SF
+0 setgray
+154.8 655 M
+( => ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+174 655 M
+('U') s
+/F-gs-font 8 8 SF
+0 setgray
+188.4 655 M
+(,) s
+15.6 646 M (301:) s
+39.6 646 M
+(                     ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+140.4 646 M
+('U') s
+/F-gs-font 8 8 SF
+0 setgray
+154.8 646 M
+( => ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+174 646 M
+('A') s
+/F-gs-font 8 8 SF
+0 setgray
+188.4 646 M
+(,) s
+15.6 637 M (302:) s
+39.6 637 M
+(                     ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+140.4 637 M
+('G') s
+/F-gs-font 8 8 SF
+0 setgray
+154.8 637 M
+( => ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+174 637 M
+('C') s
+/F-gs-font 8 8 SF
+0 setgray
+188.4 637 M
+(,) s
+15.6 628 M (303:) s
+39.6 628 M
+(                     ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+140.4 628 M
+('C') s
+/F-gs-font 8 8 SF
+0 setgray
+154.8 628 M
+( => ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+174 628 M
+('G') s
+/F-gs-font 8 8 SF
+0 setgray
+188.4 628 M
+(,) s
+15.6 619 M (304:) s
+39.6 619 M
+(                     ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+140.4 619 M
+('a') s
+/F-gs-font 8 8 SF
+0 setgray
+154.8 619 M
+( => ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+174 619 M
+('u') s
+/F-gs-font 8 8 SF
+0 setgray
+188.4 619 M
+(,) s
+15.6 610 M (305:) s
+39.6 610 M
+(                     ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+140.4 610 M
+('u') s
+/F-gs-font 8 8 SF
+0 setgray
+154.8 610 M
+( => ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+174 610 M
+('a') s
+/F-gs-font 8 8 SF
+0 setgray
+188.4 610 M
+(,) s
+15.6 601 M (306:) s
+39.6 601 M
+(                     ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+140.4 601 M
+('g') s
+/F-gs-font 8 8 SF
+0 setgray
+154.8 601 M
+( => ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+174 601 M
+('c') s
+/F-gs-font 8 8 SF
+0 setgray
+188.4 601 M
+(,) s
+15.6 592 M (307:) s
+39.6 592 M
+(                     ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+140.4 592 M
+('c') s
+/F-gs-font 8 8 SF
+0 setgray
+154.8 592 M
+( => ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+174 592 M
+('g') s
+/F-gs-font 8 8 SF
+0 setgray
+188.4 592 M
+( \);) s
+15.6 583 M (308:) s
+39.6 583 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 583 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 583 M
+( $L = ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+87.6 583 M
+(length) s
+/F-gs-font 8 8 SF
+0 setgray
+116.4 583 M
+(\($pattern\);) s
+15.6 574 M (309:) s
+39.6 574 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 574 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 574 M
+(\($c, $comp_pattern\) = \() s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+169.2 574 M
+(undef) s
+/F-gs-font 8 8 SF
+0 setgray
+193.2 574 M
+(, ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+202.8 574 M
+(undef) s
+/F-gs-font 8 8 SF
+0 setgray
+226.8 574 M
+(\);) s
+15.6 565 M (310:) s
+15.6 556 M (311:) s
+39.6 556 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 556 M
+(foreach) s
+/F-gs-font 8 8 SF
+0 setgray
+82.8 556 M
+( ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+87.6 556 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+97.2 556 M
+( $i\(0 .. $L-1\){) s
+15.6 547 M (312:) s
+39.6 547 M
+(    ) s
+15.6 538 M (313:) s
+39.6 538 M
+(    $c = ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+82.8 538 M
+(substr) s
+/F-gs-font 8 8 SF
+0 setgray
+111.6 538 M
+(\($pattern, $i, 1\);) s
+15.6 529 M (314:) s
+39.6 529 M
+(    $comp_pattern .= $COMPLEMENT{$c};) s
+15.6 520 M (315:) s
+39.6 520 M
+(  ) s
+15.6 511 M (316:) s
+39.6 511 M
+(  }) s
+15.6 502 M (317:) s
+15.6 493 M (318:) s
+39.6 493 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 493 M
+(return) s
+/F-gs-font 8 8 SF
+0 setgray
+78 493 M
+( $comp_pattern;) s
+15.6 484 M (319:) s
+15.6 475 M (320:) s
+39.6 475 M
+(}) s
+15.6 466 M (321:) s
+15.6 457 M (322:) s
+15.6 448 M (323:) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+39.6 448 M
+(sub) s
+/F-gs-font 8 8 SF
+0 setgray
+54 448 M
+( locs_match {) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+116.4 448 M
+(# \(ii\) match all occurences of the seed to the long sequence; return locations) s
+/F-gs-font 8 8 SF
+15.6 439 M (324:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+15.6 430 M (325:) s
+39.6 430 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 430 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 430 M
+(\($longseq, $pattern\) = @_;) s
+15.6 421 M (326:) s
+39.6 421 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 421 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+58.8 421 M
+( @locs;) s
+15.6 412 M (327:) s
+39.6 412 M
+( ) s
+15.6 403 M (328:) s
+39.6 403 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 403 M
+(while) s
+/F-gs-font 8 8 SF
+0 setgray
+73.2 403 M
+( \($longseq =~ /\($pattern\)/gi\){ ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+222 403 M
+(# do not use $_, has nothing) s
+/F-gs-font 8 8 SF
+15.6 394 M (329:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 394 M
+(  ) s
+15.6 385 M (330:) s
+39.6 385 M
+(    ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+58.8 385 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+68.4 385 M
+( $start = ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+116.4 385 M
+(pos) s
+/F-gs-font 8 8 SF
+0 setgray
+130.8 385 M
+(\($longseq\) - ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+193.2 385 M
+(length) s
+/F-gs-font 8 8 SF
+0 setgray
+222 385 M
+(\($1\); ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+250.8 385 M
+(# position of the current match in the sequence) s
+/F-gs-font 8 8 SF
+15.6 376 M (331:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 376 M
+(    ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+58.8 376 M
+(my) s
+/F-gs-font 8 8 SF
+0 setgray
+68.4 376 M
+( $end = $start + ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+150 376 M
+(length) s
+/F-gs-font 8 8 SF
+0 setgray
+178.8 376 M
+(\($1\) - 1;) s
+15.6 367 M (332:) s
+15.6 358 M (333:) s
+39.6 358 M
+(    ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+58.8 358 M
+(push) s
+/F-gs-font 8 8 SF
+0 setgray
+78 358 M
+( @locs, ) s
+/Courier-Bold 8 8 SUF
+0.737255 0.560784 0.560784 setrgbcolor
+116.4 358 M
+("$start\\_$end") s
+/F-gs-font 8 8 SF
+0 setgray
+183.6 358 M
+(;) s
+15.6 349 M (334:) s
+39.6 349 M
+(    ) s
+/Courier-Oblique 8 8 SUF
+0.698039 0.133333 0.133333 setrgbcolor
+58.8 349 M
+(# push @locs, "$1\\t$start\\t$end"; # save match) s
+/F-gs-font 8 8 SF
+15.6 340 M (335:) s
+/Courier-Oblique 8 8 SUF
+/F-gs-font 8 8 SF
+0 setgray
+39.6 340 M
+(  ) s
+15.6 331 M (336:) s
+39.6 331 M
+(  }) s
+15.6 322 M (337:) s
+15.6 313 M (338:) s
+39.6 313 M
+(  ) s
+/Courier-Bold 8 8 SUF
+0.627451 0.12549 0.941176 setrgbcolor
+49.2 313 M
+(return) s
+/F-gs-font 8 8 SF
+0 setgray
+78 313 M
+(\(@locs\);) s
+15.6 304 M (339:) s
+15.6 295 M (340:) s
+39.6 295 M
+(}) s
+_R
+S
+%%Trailer
+%%Pages: 5
+%%DocumentNeededResources: font Times-Roman Courier-Oblique Courier-Bold 
+%%+ font Courier Times-Bold 
+%%EOF

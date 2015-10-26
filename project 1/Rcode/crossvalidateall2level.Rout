@@ -1,0 +1,1070 @@
+
+R version 3.1.2 (2014-10-31) -- "Pumpkin Helmet"
+Copyright (C) 2014 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> #!/usr/bin/Rscript
+> # Perform x-fold cross-validation of the nnet classifier for each case of the combination of (NumOfPCs, NumOfHid.nodes, NumOfFolds)
+> # The data subsets were available (see crossvalidate.pl). These text files have a basenamefold-5-0.data convention for the training set
+> # Save the ANN in each case to .RData and report the accuracies for each crossvalidation.
+> 
+> # invoke: R CMD BATCH --no-save --no-restore '--args datasetname="Dataset1" pcamethod="NA0" basename="Dataset1-poscases-NA0Dataset1-negcases-NA0"' ~/perlprogs/crossvalidateall2level.R 
+> 
+> library(nnet)
+> library(stats)
+> 
+> # Compute contingency table
+> ContingTab <- function(true, pred) {
++          true <- max.col(true)
++          cres <- max.col(pred)
++          return(table(true, cres))
++      }
+> # Cross-validation subfunction: nnet classify on a single splitted set, with a common base name and an index -0-1 etc.
+> Xvalidatennet <- function(trainset, testset, P, hidlay1siz, RDatafilename){
++ 	ncols <- ncol(trainset)
++ 	trainlabels <- class.ind(trainset[, ncols]) # last col. is labels
++ 	testlabels <- class.ind(testset[, ncols])
++ 	ANN <- nnet(trainset[, 1:P], trainlabels, size=hidlay1siz, skip=TRUE, rang=0.1, decay=5e-04, maxit=2000)
++ 	predlabels <- predict(ANN, testset[, 1:P])
++ 	Tab <- ContingTab(testlabels, predlabels)
++ 	accuracy <- sum(diag(Tab))/sum(rowSums(Tab))
++ 	
++ 	# Write nnet to .RData file and the predictions on the test set to .Predictions file (also preserve the 'records' indices)	
++ 	save(ANN, P, hidlay1siz, testset, predlabels, accuracy, RDatafilename, file = RDatafilename, ascii=TRUE)
++ 	
++ 	return(accuracy)
++ }
+> # 2-level Cross-validate, given the num. of folds, the num.principal vectors and the size of hid.layer1
+> Xvalidateall <- function(basename, fold, P, hidlay1siz) {
++ 	indx <- 1
++         fold0 <- fold-1 # 0 reference filenames
++         NumSets <- fold0 # 3-level CV, use fold*fold0 or permutation(fold, 2)
++         accuracy <- numeric(NumSets)
++         for(i in 0:fold0) { # for each train set
++ 			
++         	        filename <- paste(basename, "fold-", fold, "-", i, sep="")
++                         trfname <- paste(filename, ".data", sep="")
++                         tfname <- paste(filename, ".test", sep="")
++                         print(trfname)
++                         
++ 			trainset <- read.table(toString(trfname))
++                         testset <- read.table(toString(tfname))
++ 
++ 			RDatabasename <- paste(filename, "-P", P, "-H", hidlay1siz, sep="")
++ 			RDatafilename <- paste(RDatabasename, ".RData", sep="")
++ 				
++ 		        accuracy[indx] <- Xvalidatennet(trainset, testset, P, hidlay1siz, RDatafilename) 
++ 			indx <- indx+1
++         } 
++ 	return(accuracy)
++ }
+> 
+> args <- commandArgs(trailingOnly = TRUE)
+> 
+> for(i in 1:length(args)){
++         eval(parse(text=args[[i]]))
++ }
+> 
+> HLSizes = c(3,6,8,10,12,15)
+> NumPVs = c(2,3,4,5)
+> Folds = c(3,5,8,10) # preset in ~/bin/Crossvalidatsets2level/cross-validate2level.pl
+> records = data.frame()
+> 
+> for(P in NumPVs) {
++ 	cat("Starting for the P.Vs 1 to ", P,"\n*******************************************************************\n")
++ 	for(hidlay1siz in HLSizes) {
++ 		cat("Starting for the size of hidden-layer-1: ", hidlay1siz,"\n======================================================================================\n")
++ 		for(fold in Folds) { 
++ 			Accuracies <- Xvalidateall(basename, fold, P, hidlay1siz)
++ 			cat("Fold = ", fold,"\tP = ",P,"\thidden layer size = ",hidlay1siz, "\n-------------------------------------------------------\nAccuracies = ", Accuracies, "\n")
++ 			df = data.frame(NumPVs=P, Hlay1siz=hidlay1siz, Fold=fold, accuracies=Accuracies)
++ 			records <- rbind(records, df)
++ 		}
++ 	}	
++ }
+Starting for the P.Vs 1 to  2 
+*******************************************************************
+Starting for the size of hidden-layer-1:  3 
+======================================================================================
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-3-0.data"
+# weights:  15
+initial  value 281.203057 
+iter  10 value 3.432954
+iter  20 value 0.039580
+iter  30 value 0.013065
+iter  40 value 0.012199
+iter  50 value 0.011798
+iter  60 value 0.011676
+iter  70 value 0.011658
+iter  80 value 0.011654
+iter  90 value 0.011653
+iter 100 value 0.011652
+iter 110 value 0.011652
+final  value 0.011652 
+converged
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-3-1.data"
+# weights:  21
+initial  value 840.673530 
+iter  10 value 355.524779
+iter  20 value 352.328411
+iter  30 value 346.310380
+iter  40 value 320.181653
+iter  50 value 317.244795
+iter  60 value 316.767451
+iter  70 value 316.453776
+iter  80 value 316.400879
+iter  90 value 316.334474
+iter 100 value 316.285805
+iter 110 value 316.253777
+iter 120 value 316.240676
+iter 130 value 316.236215
+iter 140 value 316.232244
+iter 150 value 316.230367
+final  value 316.230238 
+converged
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-3-2.data"
+# weights:  21
+initial  value 796.732699 
+iter  10 value 345.869554
+iter  20 value 340.679696
+iter  30 value 338.733528
+iter  40 value 329.782692
+iter  50 value 309.468836
+iter  60 value 306.411873
+iter  70 value 306.172016
+iter  80 value 306.032589
+iter  90 value 305.988368
+iter 100 value 305.958953
+iter 110 value 305.953835
+iter 120 value 305.947164
+iter 130 value 305.939907
+iter 140 value 305.935811
+iter 150 value 305.925054
+iter 160 value 305.918963
+iter 170 value 305.897356
+iter 180 value 305.858455
+iter 190 value 305.785183
+iter 200 value 305.776047
+iter 210 value 305.751047
+iter 220 value 305.725143
+iter 230 value 305.710397
+iter 240 value 305.703545
+iter 250 value 305.700374
+iter 260 value 305.698750
+iter 270 value 305.697917
+final  value 305.697672 
+converged
+Fold =  3 	P =  2 	hidden layer size =  3 
+-------------------------------------------------------
+Accuracies =  0.2705314 0.8828502 0.865942 
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-5-0.data"
+# weights:  21
+initial  value 966.039892 
+iter  10 value 507.117230
+iter  20 value 490.199747
+iter  30 value 474.499039
+iter  40 value 465.974980
+iter  50 value 401.901925
+iter  60 value 392.756057
+iter  70 value 392.533725
+iter  80 value 392.500446
+iter  90 value 392.490351
+iter 100 value 392.483933
+iter 110 value 392.468682
+iter 120 value 392.346789
+iter 130 value 392.228009
+iter 140 value 386.433698
+iter 150 value 363.091539
+iter 160 value 357.777356
+iter 170 value 357.290794
+iter 180 value 357.176734
+iter 190 value 357.113959
+iter 200 value 356.944855
+iter 210 value 356.800972
+iter 220 value 356.745694
+iter 230 value 356.733922
+iter 240 value 356.719286
+iter 250 value 356.710061
+iter 260 value 356.704332
+iter 270 value 356.702464
+iter 270 value 356.702461
+iter 280 value 356.701586
+iter 290 value 356.700777
+iter 300 value 356.699964
+final  value 356.699830 
+converged
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-5-1.data"
+# weights:  21
+initial  value 1015.300541 
+iter  10 value 412.889226
+iter  20 value 412.166702
+iter  30 value 410.757926
+iter  40 value 379.260258
+iter  50 value 376.359495
+iter  60 value 375.790669
+iter  70 value 374.761551
+iter  80 value 374.718307
+iter  90 value 374.634940
+iter 100 value 374.563753
+iter 110 value 374.505920
+iter 120 value 374.495196
+iter 130 value 374.483562
+iter 140 value 374.475132
+iter 150 value 374.456554
+iter 160 value 374.453039
+iter 170 value 374.425663
+iter 180 value 374.373317
+iter 190 value 374.275766
+iter 200 value 374.247701
+iter 210 value 374.245581
+iter 220 value 374.234540
+iter 230 value 374.230864
+iter 240 value 374.229563
+final  value 374.229421 
+converged
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-5-2.data"
+# weights:  21
+initial  value 973.350299 
+iter  10 value 519.867329
+iter  20 value 500.693858
+iter  30 value 481.397499
+iter  40 value 479.070366
+iter  50 value 472.744976
+iter  60 value 472.216637
+iter  70 value 411.287158
+iter  80 value 395.332726
+iter  90 value 374.407280
+iter 100 value 373.187949
+iter 110 value 373.165323
+iter 120 value 373.147103
+iter 130 value 373.133557
+iter 140 value 373.117567
+iter 150 value 373.112845
+iter 160 value 373.109823
+final  value 373.109803 
+converged
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-5-3.data"
+# weights:  21
+initial  value 1035.299718 
+iter  10 value 422.619409
+iter  20 value 420.789118
+iter  30 value 387.322584
+iter  40 value 379.616904
+iter  50 value 378.808039
+iter  60 value 378.405091
+iter  70 value 378.312846
+iter  80 value 378.249535
+iter  90 value 378.198846
+iter 100 value 378.183110
+iter 110 value 378.139354
+iter 120 value 378.132492
+iter 130 value 378.122205
+iter 140 value 378.117588
+iter 150 value 378.116850
+final  value 378.116835 
+converged
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-5-4.data"
+# weights:  21
+initial  value 1004.441157 
+iter  10 value 524.595610
+iter  20 value 447.145151
+iter  30 value 425.249653
+iter  40 value 407.898796
+iter  50 value 399.024681
+iter  60 value 391.603865
+iter  70 value 381.228774
+iter  80 value 377.087405
+iter  90 value 376.330822
+iter 100 value 376.292810
+iter 110 value 376.279978
+iter 120 value 376.242310
+iter 130 value 376.232898
+iter 140 value 376.212921
+iter 150 value 376.211302
+iter 160 value 376.211096
+iter 170 value 376.210751
+final  value 376.210596 
+converged
+Fold =  5 	P =  2 	hidden layer size =  3 
+-------------------------------------------------------
+Accuracies =  0.8554217 0.8674699 0.87751 0.8835341 0.8810484 
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-8-0.data"
+# weights:  21
+initial  value 1163.653644 
+iter  10 value 446.865876
+iter  20 value 444.574447
+iter  30 value 440.549895
+iter  40 value 422.915150
+iter  50 value 406.838674
+iter  60 value 401.037607
+iter  70 value 400.639582
+iter  80 value 400.452230
+iter  90 value 400.389936
+iter 100 value 400.364051
+iter 110 value 400.279852
+iter 120 value 400.196558
+iter 130 value 400.157438
+iter 140 value 400.153561
+iter 150 value 400.137352
+iter 160 value 400.130933
+iter 170 value 400.128574
+final  value 400.128485 
+converged
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-8-1.data"
+# weights:  21
+initial  value 1156.057504 
+iter  10 value 468.486998
+iter  20 value 463.760902
+iter  30 value 459.674572
+iter  40 value 459.621963
+iter  50 value 458.262320
+iter  60 value 441.082622
+iter  70 value 413.770099
+iter  80 value 412.419000
+iter  90 value 412.178615
+iter 100 value 411.828948
+iter 110 value 411.743131
+iter 120 value 411.679317
+iter 130 value 411.645547
+iter 140 value 411.635834
+iter 150 value 411.626496
+iter 160 value 411.614751
+iter 170 value 411.593874
+iter 180 value 411.572845
+iter 190 value 411.564323
+iter 200 value 411.556616
+iter 210 value 411.548031
+iter 220 value 411.539937
+iter 230 value 411.536076
+iter 240 value 411.535218
+iter 250 value 411.533240
+iter 260 value 411.532652
+iter 270 value 411.532458
+final  value 411.532415 
+converged
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-8-2.data"
+# weights:  15
+initial  value 357.583286 
+iter  10 value 5.644723
+iter  20 value 0.065079
+iter  30 value 0.013368
+iter  40 value 0.012389
+iter  50 value 0.012092
+iter  60 value 0.012042
+iter  70 value 0.012017
+iter  80 value 0.012014
+iter  90 value 0.012014
+iter 100 value 0.012013
+final  value 0.012013 
+converged
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-8-3.data"
+# weights:  15
+initial  value 388.012136 
+iter  10 value 6.343467
+iter  20 value 0.073135
+iter  30 value 0.013763
+iter  40 value 0.012771
+iter  50 value 0.012164
+iter  60 value 0.012056
+iter  70 value 0.012028
+iter  80 value 0.012024
+iter  90 value 0.012023
+iter 100 value 0.012022
+iter 110 value 0.012022
+iter 110 value 0.012022
+iter 110 value 0.012022
+final  value 0.012022 
+converged
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-8-4.data"
+# weights:  21
+initial  value 1093.462661 
+iter  10 value 450.943271
+iter  20 value 448.711756
+iter  30 value 448.694944
+iter  40 value 448.693010
+iter  50 value 448.685063
+iter  60 value 448.575383
+iter  70 value 442.656243
+iter  80 value 410.857763
+iter  90 value 407.366497
+iter 100 value 406.602974
+iter 110 value 406.495341
+iter 120 value 406.484013
+iter 130 value 406.468633
+iter 140 value 406.450225
+iter 150 value 406.436664
+iter 160 value 406.423444
+iter 170 value 406.420324
+iter 180 value 406.418252
+iter 190 value 406.417000
+final  value 406.416377 
+converged
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-8-5.data"
+# weights:  21
+initial  value 1055.471920 
+iter  10 value 447.097179
+iter  20 value 446.200621
+iter  30 value 446.190114
+iter  40 value 446.160220
+iter  50 value 445.869550
+iter  60 value 445.010450
+iter  70 value 435.829706
+iter  80 value 408.667024
+iter  90 value 405.131199
+iter 100 value 404.582833
+iter 110 value 404.161438
+iter 120 value 403.894862
+iter 130 value 403.886256
+iter 140 value 403.876444
+iter 150 value 403.871533
+iter 160 value 403.864907
+iter 170 value 403.863712
+iter 180 value 403.861297
+iter 190 value 403.860825
+iter 200 value 403.857924
+iter 210 value 403.851077
+iter 220 value 403.826619
+iter 230 value 403.824719
+iter 240 value 403.801605
+iter 250 value 403.771778
+iter 260 value 403.761456
+iter 270 value 403.758873
+iter 280 value 403.752162
+iter 290 value 403.747807
+iter 300 value 403.740009
+final  value 403.738151 
+converged
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-8-6.data"
+# weights:  21
+initial  value 1043.531271 
+iter  10 value 444.210296
+iter  20 value 439.873814
+iter  30 value 439.852544
+iter  40 value 439.289725
+iter  50 value 421.810072
+iter  60 value 400.927460
+iter  70 value 400.199574
+iter  80 value 400.081400
+iter  90 value 400.023618
+iter 100 value 400.006492
+iter 110 value 399.981623
+iter 120 value 399.964498
+iter 130 value 399.961707
+final  value 399.961646 
+converged
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-8-7.data"
+# weights:  21
+initial  value 1100.501113 
+iter  10 value 460.930821
+iter  20 value 460.614166
+iter  30 value 455.504954
+iter  40 value 448.019663
+iter  50 value 415.398339
+iter  60 value 411.303576
+iter  70 value 410.775483
+iter  80 value 410.754226
+iter  90 value 410.730716
+iter 100 value 410.680242
+iter 110 value 410.638010
+iter 120 value 410.628317
+iter 130 value 410.625481
+iter 140 value 410.617747
+iter 150 value 410.611420
+iter 160 value 410.607999
+iter 170 value 410.606718
+iter 180 value 410.605229
+final  value 410.605022 
+converged
+Fold =  8 	P =  2 	hidden layer size =  3 
+-------------------------------------------------------
+Accuracies =  0.85209 0.8938907 0.2700965 0.2700965 0.8745981 0.8649518 0.8617363 0.8834951 
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-10-0.data"
+# weights:  21
+initial  value 1101.033865 
+iter  10 value 459.537254
+iter  20 value 459.128682
+iter  30 value 456.024048
+iter  40 value 455.645244
+iter  50 value 455.619816
+iter  60 value 455.183457
+iter  70 value 455.133914
+iter  80 value 454.910857
+iter  90 value 454.662764
+iter 100 value 454.641475
+iter 110 value 454.633989
+final  value 454.632763 
+converged
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-10-1.data"
+# weights:  21
+initial  value 1153.651091 
+iter  10 value 561.740708
+iter  20 value 534.147853
+iter  30 value 531.241726
+iter  40 value 530.806969
+iter  50 value 479.888583
+iter  60 value 451.588585
+iter  70 value 441.969395
+iter  80 value 433.813391
+iter  90 value 415.318099
+iter 100 value 414.561241
+iter 110 value 414.234627
+iter 120 value 414.010631
+iter 130 value 413.982964
+iter 140 value 413.970082
+iter 150 value 413.961454
+iter 160 value 413.956378
+iter 170 value 413.949869
+iter 180 value 413.948131
+iter 190 value 413.946326
+final  value 413.946196 
+converged
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-10-2.data"
+# weights:  21
+initial  value 1165.646167 
+iter  10 value 543.690786
+iter  20 value 540.988279
+iter  30 value 538.973869
+iter  40 value 535.346001
+iter  50 value 520.428579
+iter  60 value 495.129776
+iter  70 value 490.880655
+iter  80 value 451.108576
+iter  90 value 421.809628
+iter 100 value 420.744746
+iter 110 value 420.704307
+iter 120 value 420.687035
+iter 130 value 420.667082
+iter 140 value 420.552305
+iter 150 value 420.136194
+iter 160 value 420.023286
+iter 170 value 420.016347
+iter 180 value 420.010353
+iter 190 value 420.006470
+iter 200 value 420.005370
+final  value 420.005010 
+converged
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-10-3.data"
+# weights:  21
+initial  value 1156.391124 
+iter  10 value 455.160095
+iter  20 value 450.416118
+iter  30 value 450.409009
+iter  40 value 450.404046
+iter  50 value 450.402232
+iter  60 value 450.400157
+iter  70 value 450.395710
+iter  80 value 450.392303
+iter  90 value 445.076792
+iter 100 value 409.405164
+iter 110 value 408.119330
+iter 120 value 407.819968
+iter 130 value 407.760723
+iter 140 value 407.737256
+iter 150 value 407.674906
+iter 160 value 407.599967
+iter 170 value 407.551830
+iter 180 value 407.536457
+iter 190 value 407.515153
+iter 200 value 407.482532
+iter 210 value 407.478109
+final  value 407.476182 
+converged
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-10-4.data"
+# weights:  21
+initial  value 1137.681863 
+iter  10 value 467.082435
+iter  20 value 466.583831
+iter  30 value 466.574221
+iter  40 value 466.573131
+final  value 466.572761 
+converged
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-10-5.data"
+# weights:  15
+initial  value 422.864067 
+iter  10 value 7.079806
+iter  20 value 0.081625
+iter  30 value 0.013795
+iter  40 value 0.012855
+iter  50 value 0.012255
+iter  60 value 0.012092
+iter  70 value 0.012057
+iter  80 value 0.012052
+iter  90 value 0.012049
+iter 100 value 0.012049
+iter 110 value 0.012049
+iter 120 value 0.012048
+iter 120 value 0.012048
+iter 120 value 0.012048
+final  value 0.012048 
+converged
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-10-6.data"
+# weights:  21
+initial  value 1142.169173 
+iter  10 value 504.376896
+iter  20 value 463.516205
+iter  30 value 458.296842
+iter  40 value 455.427960
+iter  50 value 455.103046
+iter  60 value 454.987011
+iter  70 value 454.982047
+final  value 454.981365 
+converged
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-10-7.data"
+# weights:  21
+initial  value 1098.839687 
+iter  10 value 466.790295
+iter  20 value 465.475549
+iter  30 value 465.365839
+iter  40 value 464.695409
+iter  50 value 464.566673
+iter  60 value 463.923459
+iter  70 value 427.256366
+iter  80 value 423.163178
+iter  90 value 422.430690
+iter 100 value 422.343171
+iter 110 value 422.318854
+iter 120 value 422.292260
+iter 130 value 422.254746
+iter 140 value 422.220209
+iter 150 value 422.199468
+iter 160 value 422.182916
+iter 170 value 422.129307
+iter 180 value 422.037463
+iter 190 value 421.992845
+iter 200 value 421.981024
+iter 210 value 421.966297
+iter 220 value 421.945487
+iter 230 value 421.937513
+iter 240 value 421.932122
+iter 250 value 421.909756
+iter 260 value 421.875066
+iter 270 value 421.848294
+iter 280 value 421.837851
+iter 290 value 421.814058
+iter 300 value 421.792350
+iter 310 value 421.775529
+iter 320 value 421.767280
+iter 330 value 421.764447
+iter 340 value 421.759440
+iter 350 value 421.750885
+iter 360 value 421.748363
+final  value 421.747755 
+converged
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-10-8.data"
+# weights:  15
+initial  value 427.026219 
+iter  10 value 7.033283
+iter  20 value 0.081088
+iter  30 value 0.013726
+iter  40 value 0.012815
+iter  50 value 0.012225
+iter  60 value 0.012080
+iter  70 value 0.012052
+iter  80 value 0.012049
+iter  90 value 0.012047
+iter 100 value 0.012046
+iter 110 value 0.012046
+iter 110 value 0.012046
+iter 110 value 0.012046
+final  value 0.012046 
+converged
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-10-9.data"
+# weights:  21
+initial  value 1127.761701 
+iter  10 value 468.108801
+iter  20 value 466.801859
+iter  30 value 466.670605
+iter  40 value 466.405735
+iter  50 value 442.153315
+iter  60 value 418.825671
+iter  70 value 416.737558
+iter  80 value 416.507711
+iter  90 value 416.482322
+iter 100 value 416.473568
+iter 110 value 416.465962
+iter 120 value 416.446037
+iter 130 value 416.443423
+final  value 416.442641 
+converged
+Fold =  10 	P =  2 	hidden layer size =  3 
+-------------------------------------------------------
+Accuracies =  0.8467742 0.09944751 0.07734807 0.8427419 0.0718232 0.2701613 0.8669355 0.8830645 0.2701613 0.8870968 
+Starting for the size of hidden-layer-1:  6 
+======================================================================================
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-3-0.data"
+# weights:  27
+initial  value 301.370521 
+iter  10 value 5.129437
+iter  20 value 0.059138
+iter  30 value 0.010506
+iter  40 value 0.009158
+iter  50 value 0.008962
+iter  60 value 0.008935
+iter  70 value 0.008933
+iter  80 value 0.008930
+final  value 0.008930 
+converged
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-3-1.data"
+# weights:  36
+initial  value 857.070842 
+iter  10 value 404.236171
+iter  20 value 384.603264
+iter  30 value 379.586933
+iter  40 value 377.908380
+iter  50 value 377.410612
+iter  60 value 373.589635
+iter  70 value 365.584092
+iter  80 value 363.679945
+iter  90 value 361.066624
+iter 100 value 359.471136
+iter 110 value 358.413203
+iter 120 value 356.335902
+iter 130 value 320.913651
+iter 140 value 318.162481
+iter 150 value 317.447222
+iter 160 value 317.122641
+iter 170 value 317.090959
+iter 180 value 317.060478
+iter 190 value 317.036395
+iter 200 value 317.029114
+iter 210 value 316.946539
+iter 220 value 316.879341
+iter 230 value 316.833708
+iter 240 value 316.760841
+iter 250 value 316.665920
+iter 260 value 316.611638
+iter 270 value 316.579765
+iter 280 value 316.565453
+iter 290 value 316.526490
+iter 300 value 316.485151
+iter 310 value 316.461229
+iter 320 value 316.439257
+iter 330 value 316.425959
+iter 340 value 316.415194
+iter 350 value 316.410456
+iter 360 value 316.391541
+iter 370 value 316.372736
+iter 380 value 316.341427
+iter 390 value 316.318605
+iter 400 value 316.288667
+iter 410 value 316.238689
+iter 420 value 316.228688
+iter 430 value 316.216597
+iter 440 value 316.201724
+iter 450 value 316.194681
+iter 460 value 316.185840
+iter 470 value 316.177245
+iter 480 value 316.167805
+iter 490 value 316.165174
+iter 500 value 316.160392
+iter 510 value 316.149166
+iter 520 value 316.129812
+iter 530 value 316.114927
+iter 540 value 316.096147
+iter 550 value 316.085144
+iter 560 value 316.079367
+iter 570 value 316.075650
+iter 580 value 316.070201
+iter 590 value 316.062137
+iter 600 value 316.058537
+iter 610 value 316.054119
+iter 620 value 316.050622
+iter 630 value 316.049141
+final  value 316.048936 
+converged
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-3-2.data"
+# weights:  36
+initial  value 842.456551 
+iter  10 value 409.587937
+iter  20 value 404.347043
+iter  30 value 398.384590
+iter  40 value 393.485066
+iter  50 value 390.572207
+iter  60 value 381.368107
+iter  70 value 360.806187
+iter  80 value 357.537027
+iter  90 value 349.129790
+iter 100 value 347.158909
+iter 110 value 319.662852
+iter 120 value 310.108336
+iter 130 value 306.519851
+iter 140 value 306.400715
+iter 150 value 306.187943
+iter 160 value 306.099688
+iter 170 value 306.016860
+iter 180 value 306.001623
+iter 190 value 305.994242
+final  value 305.988428 
+converged
+Fold =  3 	P =  2 	hidden layer size =  6 
+-------------------------------------------------------
+Accuracies =  0.2705314 0.8792271 0.8683575 
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-5-0.data"
+# weights:  36
+initial  value 985.571469 
+iter  10 value 532.084459
+iter  20 value 522.812442
+iter  30 value 517.580703
+iter  40 value 450.770529
+iter  50 value 446.898067
+iter  60 value 445.918830
+iter  70 value 438.524028
+iter  80 value 412.211008
+iter  90 value 410.683580
+iter 100 value 410.330391
+iter 110 value 366.614961
+iter 120 value 357.915038
+iter 130 value 357.557603
+iter 140 value 357.542464
+iter 150 value 357.527354
+iter 160 value 357.492820
+iter 170 value 357.380428
+final  value 357.280718 
+converged
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-5-1.data"
+# weights:  36
+initial  value 981.379242 
+iter  10 value 502.274160
+iter  20 value 482.407268
+iter  30 value 471.732594
+iter  40 value 459.882899
+iter  50 value 432.881515
+iter  60 value 425.587689
+iter  70 value 419.873326
+iter  80 value 419.615209
+iter  90 value 419.257048
+iter 100 value 391.565436
+iter 110 value 376.713086
+iter 120 value 375.989233
+iter 130 value 375.803223
+iter 140 value 375.677652
+iter 150 value 375.372031
+iter 160 value 375.253776
+iter 170 value 375.121523
+iter 180 value 375.066618
+iter 190 value 374.936448
+iter 200 value 374.828930
+iter 210 value 374.803413
+iter 220 value 374.793585
+iter 230 value 374.787807
+iter 240 value 374.782894
+iter 250 value 374.781634
+iter 260 value 374.773171
+iter 270 value 374.747649
+iter 280 value 374.662393
+iter 290 value 374.605026
+iter 300 value 374.537726
+iter 310 value 374.486936
+iter 320 value 374.479193
+iter 330 value 374.474501
+iter 340 value 374.464157
+iter 350 value 374.457618
+iter 360 value 374.454123
+iter 370 value 374.446139
+iter 380 value 374.432744
+iter 390 value 374.425229
+iter 400 value 374.423235
+iter 410 value 374.417398
+iter 420 value 374.410081
+iter 430 value 374.405522
+iter 440 value 374.399834
+iter 450 value 374.395342
+iter 460 value 374.391484
+iter 470 value 374.389540
+iter 480 value 374.381342
+iter 490 value 374.359246
+iter 500 value 374.333808
+iter 510 value 374.300149
+iter 520 value 374.255652
+iter 530 value 374.195812
+iter 540 value 374.185125
+iter 550 value 374.173022
+iter 560 value 374.157381
+iter 570 value 374.144518
+iter 580 value 374.133782
+iter 590 value 374.122525
+iter 600 value 374.110638
+iter 610 value 374.104237
+iter 620 value 374.102680
+iter 630 value 374.098812
+iter 640 value 374.093404
+iter 650 value 374.084073
+final  value 374.082367 
+converged
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-5-2.data"
+# weights:  36
+initial  value 1001.866715 
+iter  10 value 568.294622
+iter  20 value 525.761361
+iter  30 value 440.810223
+iter  40 value 405.442779
+iter  50 value 381.549449
+iter  60 value 374.064823
+iter  70 value 373.603165
+iter  80 value 373.382619
+iter  90 value 373.020191
+iter 100 value 372.954161
+iter 110 value 372.797839
+iter 120 value 372.721294
+iter 130 value 372.692108
+iter 140 value 372.666984
+iter 150 value 372.642520
+iter 160 value 372.623084
+iter 170 value 372.609474
+iter 180 value 372.605384
+iter 190 value 372.600922
+iter 200 value 372.594360
+iter 210 value 372.588572
+iter 220 value 372.582596
+iter 230 value 372.580012
+iter 240 value 372.575034
+iter 250 value 372.573657
+iter 260 value 372.565232
+iter 270 value 372.555777
+iter 280 value 372.549781
+iter 290 value 372.548478
+iter 300 value 372.547378
+final  value 372.546865 
+converged
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-5-3.data"
+# weights:  36
+initial  value 993.219736 
+iter  10 value 524.648415
+iter  20 value 489.980381
+iter  30 value 473.062132
+iter  40 value 468.719921
+iter  50 value 429.749144
+iter  60 value 416.834460
+iter  70 value 411.734401
+iter  80 value 410.795274
+iter  90 value 410.406014
+iter 100 value 408.223479
+iter 110 value 384.563615
+iter 120 value 380.136533
+iter 130 value 379.945396
+iter 140 value 379.883997
+iter 150 value 379.866625
+iter 160 value 379.859901
+iter 170 value 379.856012
+iter 180 value 379.851528
+iter 190 value 379.846911
+iter 200 value 379.834519
+iter 210 value 379.815331
+iter 220 value 379.768628
+iter 230 value 379.347239
+iter 240 value 379.244102
+iter 250 value 379.194338
+iter 260 value 379.175040
+iter 270 value 379.092813
+iter 280 value 379.071328
+iter 290 value 379.052726
+iter 300 value 379.038413
+iter 310 value 379.012913
+iter 320 value 379.002510
+iter 330 value 378.999717
+iter 340 value 378.986563
+iter 350 value 378.948752
+iter 360 value 378.895158
+iter 370 value 378.753075
+iter 380 value 378.427451
+iter 390 value 378.252787
+iter 400 value 378.209390
+iter 410 value 378.191887
+iter 420 value 378.111115
+iter 430 value 378.093657
+iter 440 value 378.081497
+iter 450 value 378.069609
+iter 460 value 378.063862
+iter 470 value 378.060310
+iter 480 value 378.060029
+iter 490 value 378.058028
+iter 500 value 378.057183
+iter 510 value 378.055954
+iter 520 value 378.054914
+iter 530 value 378.054342
+iter 540 value 378.053270
+final  value 378.053014 
+converged
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-5-4.data"
+# weights:  36
+initial  value 1065.523918 
+iter  10 value 529.439237
+iter  20 value 508.365817
+iter  30 value 486.716094
+iter  40 value 474.881195
+iter  50 value 472.910099
+iter  60 value 451.587030
+iter  70 value 450.698736
+iter  80 value 417.616255
+iter  90 value 412.900916
+iter 100 value 405.493137
+iter 110 value 385.472781
+iter 120 value 377.413210
+iter 130 value 376.992154
+iter 140 value 376.677873
+iter 150 value 376.594396
+iter 160 value 376.571387
+iter 170 value 376.476746
+iter 180 value 376.448338
+iter 190 value 376.419550
+iter 200 value 376.386656
+iter 210 value 376.367720
+iter 220 value 376.353258
+iter 230 value 376.341934
+iter 240 value 376.338689
+iter 250 value 376.336434
+final  value 376.336357 
+converged
+Fold =  5 	P =  2 	hidden layer size =  6 
+-------------------------------------------------------
+Accuracies =  0.8554217 0.8674699 0.87751 0.8815261 0.8830645 
+[1] "~/bin/Crossvalidatsets2level/Dataset1-poscases-NA0Dataset1-negcases-NA0fold-8-0.data"
+# weights:  36
+initial  value 1156.215322 
+iter  10 value 501.584139
+iter  20 value 497.888391
+iter  30 value 457.470355
+iter  40 value 435.463507
+iter  50 value 423.546017
+iter  60 value 422.844893
+iter  70 value 422.673607
+iter  80 value 412.819826
+iter  90 value 402.071499
+iter 100 value 400.965528
+iter 110 value 400.739285
+iter 120 value 400.638909
+iter 130 value 400.516571
+iter 140 value 400.379461
+iter 150 value 400.335671
+iter 160 value 400.329332
+iter 170 value 400.285291
+iter 180 value 400.259427
+iter 190 value 400.237611
+iter 200 value 400.218002
+iter 210 value 400.202466
+iter 220 value 400.169645
+iter 230 value 400.158762
+iter 240 value 400.136693
+iter 250 value 400.085574
+iter 260 value 400.037349
+iter 270 value 400.029580
+iter 280 value 400.022068
+iter 290 value 400.016890
+final  value 400.014447 
+converged
+
+Execution halted

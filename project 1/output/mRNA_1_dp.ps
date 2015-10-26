@@ -1,0 +1,273 @@
+%!PS-Adobe-3.0 EPSF-3.0
+%%Title: RNA Dot Plot
+%%Creator: PS_dot.c,v 1.38 2007/02/02 15:18:13 ivo Exp $, ViennaRNA-2.1.7
+%%CreationDate: Wed Jun 24 10:26:51 2015
+%%BoundingBox: 66 530 520 650
+%%DocumentFonts: Helvetica
+%%Pages: 1
+%%EndComments
+
+%Options: -d2 
+%This file contains the square roots of the base pair probabilities in the form
+% i  j  sqrt(p(i,j)) ubox
+
+%%BeginProlog
+/DPdict 100 dict def
+DPdict begin
+/logscale false def
+/lpmin 1e-05 log def
+
+/box { %size x y box - draws box centered on x,y
+   2 index 0.5 mul sub            % x -= 0.5
+   exch 2 index 0.5 mul sub exch  % y -= 0.5
+   3 -1 roll dup rectfill
+} bind def
+
+/ubox {
+   logscale {
+      log dup add lpmin div 1 exch sub dup 0 lt { pop 0 } if
+   } if
+   3 1 roll
+   exch len exch sub 1 add box
+} bind def
+
+/lbox {
+   3 1 roll
+   len exch sub 1 add box
+} bind def
+
+/drawseq {
+% print sequence along all 4 sides
+[ [0.7 -0.3 0 ]
+  [0.7 0.7 len add 0]
+  [-0.3 len sub -0.4 -90]
+  [-0.3 len sub 0.7 len add -90]
+] {
+   gsave
+    aload pop rotate translate
+    0 1 len 1 sub {
+     dup 0 moveto
+     sequence exch 1 getinterval
+     show
+    } for
+   grestore
+  } forall
+} bind def
+
+/drawgrid{
+  0.01 setlinewidth
+  len log 0.9 sub cvi 10 exch exp  % grid spacing
+  dup 1 gt {
+     dup dup 20 div dup 2 array astore exch 40 div setdash
+  } { [0.3 0.7] 0.1 setdash } ifelse
+  0 exch len {
+     dup dup
+     0 moveto
+     len lineto 
+     dup
+     len exch sub 0 exch moveto
+     len exch len exch sub lineto
+     stroke
+  } for
+  [] 0 setdash
+  0.04 setlinewidth 
+  currentdict /cutpoint known {
+    cutpoint 1 sub
+    dup dup -1 moveto len 1 add lineto
+    len exch sub dup
+    -1 exch moveto len 1 add exch lineto
+    stroke
+  } if
+  0.5 neg dup translate
+} bind def
+
+end
+%%EndProlog
+DPdict begin
+%delete next line to get rid of title
+270 665 moveto /Helvetica findfont 14 scalefont setfont (mRNA_1) show
+
+/sequence { (\
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUUACGUACGCAAAAAAAAAAAAAAAAAAAUUUUCCCCGGGUAUGCGCUAAAAAAAUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU\
+) } def
+/winSize 20 def
+/len { sequence length } bind def
+
+292 416 translate
+72 6 mul len 1 add winSize add 2 sqrt mul div dup scale
+/Helvetica findfont 0.95 scalefont setfont
+
+/drawseq_turn {% print sequence at bottom
+   gsave
+   len 2 sqrt div dup neg 0.28 add exch 0.78 sub translate
+    0 1 len 1 sub {
+     dup dup 2 sqrt mul 0 moveto
+     sequence exch 1 getinterval
+     show
+    } for
+   grestore
+} bind def
+/drawgrid_turn{
+  0.01 setlinewidth
+  len log 0.9 sub cvi 10 exch exp  % grid spacing
+  dup 1 gt {
+     dup dup 20 div dup 2 array astore exch 40 div setdash
+  } { [0.3 0.7] 0.1 setdash } ifelse
+  0 exch len {    %for (0, gridspacing, len) 
+     dup dup      %duplicate what - gridspacing??
+     dup len exch sub moveto     %moveto diagonal?
+     dup winSize gt
+     {dup dup len exch sub winSize add lineto}
+     {dup len lineto}ifelse
+     dup len exch sub moveto  %moveto diagonal?
+     dup len winSize sub le
+     {dup dup len exch sub dup winSize exch sub len add exch lineto}
+     {dup dup len exch sub len exch lineto}ifelse     stroke pop pop
+  } for
+  len log 0.9 sub cvi 10 exch exp  % grid spacing
+      dup 1 gt {
+          dup dup 20 div dup 2 array astore exch 40 div setdash
+      } { [0.3 0.7] 0.1 setdash } ifelse
+      0 exch len {    %for (0, gridspacing, len) 
+     dup dup      %duplicate what - gridspacing??
+     dup len exch sub moveto     %moveto diagonal?
+     len exch sub 0.7 sub exch 0.7 sub exch lineto
+     stroke
+   }for
+ winSize len moveto  len winSize  lineto stroke
+  [] 0 setdash
+  0.04 setlinewidth 
+  currentdict /cutpoint known {
+    cutpoint 1 sub
+    dup dup -1 moveto len 1 add lineto
+    len exch sub dup
+    -1 exch moveto len 1 add exch lineto
+   stroke
+  } if
+  0.5 neg dup translate
+} bind def 
+
+0.5 dup translate
+drawseq_turn
+45 rotate
+
+
+%draw the grid
+drawgrid_turn
+
+%start of base pair probability data
+36 41 0.1259 ubox
+50 65 0.1765 ubox
+51 64 0.1722 ubox
+51 65 0.1259 ubox
+52 63 0.1568 ubox
+52 64 0.1245 ubox
+52 65 0.2112 ubox
+53 62 0.1393 ubox
+53 63 0.1136 ubox
+53 64 0.2127 ubox
+53 65 0.1630 ubox
+54 63 0.1980 ubox
+54 64 0.1656 ubox
+54 65 0.1986 ubox
+55 62 0.1633 ubox
+55 63 0.1545 ubox
+55 64 0.2038 ubox
+55 65 0.1347 ubox
+56 62 0.1320 ubox
+56 63 0.1880 ubox
+56 64 0.1388 ubox
+56 65 0.1084 ubox
+57 62 0.1472 ubox
+57 63 0.1288 ubox
+57 64 0.1103 ubox
+66 72 0.3449 ubox
+67 71 0.3209 ubox
+69 76 0.1531 ubox
+69 78 0.6733 ubox
+70 75 0.1253 ubox
+70 77 0.6267 ubox
+70 79 0.1420 ubox
+70 80 0.1605 ubox
+71 77 0.1138 ubox
+71 79 0.1736 ubox
+71 80 0.3655 ubox
+72 77 0.1314 ubox
+72 79 0.4016 ubox
+73 78 0.3590 ubox
+81 92 0.1227 ubox
+81 93 0.1370 ubox
+81 94 0.1950 ubox
+81 95 0.2009 ubox
+81 96 0.2623 ubox
+81 97 0.2568 ubox
+81 98 0.5377 ubox
+81 99 0.4301 ubox
+81 100 0.4998 ubox
+82 91 0.1321 ubox
+82 92 0.1476 ubox
+82 93 0.2108 ubox
+82 94 0.2176 ubox
+82 95 0.2851 ubox
+82 96 0.2760 ubox
+82 97 0.5631 ubox
+82 98 0.4207 ubox
+82 99 0.4590 ubox
+82 100 0.2272 ubox
+82 101 0.3929 ubox
+83 90 0.1240 ubox
+83 91 0.1407 ubox
+83 92 0.2011 ubox
+83 93 0.2074 ubox
+83 94 0.2721 ubox
+83 95 0.2631 ubox
+83 96 0.5358 ubox
+83 97 0.3943 ubox
+83 98 0.4270 ubox
+83 99 0.2202 ubox
+83 100 0.3308 ubox
+83 101 0.1421 ubox
+83 102 0.1617 ubox
+84 89 0.1018 ubox
+84 90 0.1284 ubox
+84 91 0.1839 ubox
+84 92 0.1928 ubox
+84 93 0.2532 ubox
+84 94 0.2444 ubox
+84 95 0.4991 ubox
+84 96 0.3653 ubox
+84 97 0.3951 ubox
+84 98 0.2054 ubox
+84 99 0.3001 ubox
+84 100 0.1317 ubox
+84 101 0.1290 ubox
+84 103 0.1083 ubox
+85 90 0.1501 ubox
+85 91 0.1748 ubox
+85 92 0.2301 ubox
+85 93 0.2256 ubox
+85 94 0.4619 ubox
+85 95 0.3363 ubox
+85 96 0.3624 ubox
+85 97 0.1875 ubox
+85 98 0.2701 ubox
+85 99 0.1177 ubox
+85 100 0.1109 ubox
+86 90 0.1251 ubox
+86 91 0.1874 ubox
+86 92 0.2039 ubox
+86 93 0.4250 ubox
+86 94 0.3095 ubox
+86 95 0.3324 ubox
+86 96 0.1702 ubox
+86 97 0.2434 ubox
+86 98 0.1044 ubox
+87 91 0.1460 ubox
+87 92 0.3787 ubox
+87 93 0.2817 ubox
+87 94 0.2986 ubox
+87 95 0.1534 ubox
+87 96 0.2206 ubox
+showpage
+end
+%%EOF

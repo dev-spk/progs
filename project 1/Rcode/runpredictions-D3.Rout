@@ -1,0 +1,41 @@
+
+R version 3.1.2 (2014-10-31) -- "Pumpkin Helmet"
+Copyright (C) 2014 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> #!/bin/Rscript
+> 
+> # Predict on the postive and negative cases of D-3 using the predicted models
+> 
+> require(nnet)
+Loading required package: nnet
+> 
+> # load the models and run predictions on the complete dataset
+> poscases <- read.table("~/bin/Crossvalidatsets2level/Dataset3-poscases-NA0.data")
+> negcases <- read.table("~/bin/Crossvalidatsets2level/Dataset3-negcases-NA0.data")
+> 
+> recs <- rbind(poscases, negcases)
+> labels <- recs[, 6]
+> 
+> # 
+> load("~/bin/Crossvalidatsets2level/Dataset3-poscases-NA0Dataset1-negcases-NA0fold-10-0-P5-H6.RData")
+Error in readChar(con, 5L, useBytes = TRUE) : cannot open the connection
+Calls: load -> readChar
+In addition: Warning message:
+In readChar(con, 5L, useBytes = TRUE) :
+  cannot open compressed file '/home/complab/bin/Crossvalidatsets2level/Dataset3-poscases-NA0Dataset1-negcases-NA0fold-10-0-P5-H6.RData', probable reason 'No such file or directory'
+Execution halted

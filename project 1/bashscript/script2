@@ -1,0 +1,5 @@
+#$ -N script2
+#$ -cwd
+#$ -l h_rt=336:00:00
+
+~/Packages/bin/RNAfold --gquad --noPS < $1 > $1.secondary
